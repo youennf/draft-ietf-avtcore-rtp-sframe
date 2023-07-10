@@ -22,7 +22,7 @@ author:
 
 --- abstract
 
-This document describes the RTP payload format of SFrame {{?I-D.draft-ietf-sframe-enc-00}}.
+This document describes the RTP payload format of SFrame.
 
 --- middle
 
@@ -115,3 +115,6 @@ a=rtpmap:97 sframe/90000
 
 This document is subject to the security considerations of SFrame {{?I-D.draft-ietf-sframe-enc-00}}.
 
+# IANA Considerations
+
+None
