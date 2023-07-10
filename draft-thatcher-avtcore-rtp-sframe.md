@@ -28,7 +28,7 @@ This document describes the RTP payload format of SFrame.
 
 # Introduction
 
-SFrame {{?I-D.draft-ietf-sframe-enc-00}} describes an end-to-end encryption and authentication mechanism
+SFrame {{?I-D.draft-ietf-sframe-enc-01}} describes an end-to-end encryption and authentication mechanism
 for media frames in a multiparty conference call, in which central media servers (SFUs) can access the
 media metadata needed to make forwarding decisions without having access to the actual media.
 
@@ -104,16 +104,16 @@ clock rate of the payload type of the RTP packet that results from media-format-
 it may be necessary to negotiate more than one SFrame payload type.  For example, if one were to use SDP
 to negotiate payload types, the following payload types could be negotiated with different clock rates:
 
-```
+~~~
 m=audio 50000 RTP/SAVPF 96
 a=rtpmap:96 sframe/48000
 m=video 50002 RTP/SAVPF 97
 a=rtpmap:97 sframe/90000
-```
+~~~
 
 # Security Considerations
 
-This document is subject to the security considerations of SFrame {{?I-D.draft-ietf-sframe-enc-00}}.
+This document is subject to the security considerations of SFrame.
 
 # IANA Considerations
 
