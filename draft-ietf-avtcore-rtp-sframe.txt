@@ -9,7 +9,7 @@ Expires: 28 March 2024
 
 
                      RTP Payload Format for SFrame
-                draft-thatcher-avtcore-rtp-sframe-latest
+                  draft-ietf-avtcore-rtp-sframe-latest
 
 Abstract
 
