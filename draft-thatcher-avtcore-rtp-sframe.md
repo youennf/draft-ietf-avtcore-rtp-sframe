@@ -44,16 +44,16 @@ when, and only when, they appear in all capitals, as shown here.
 
 # RTP Packetization of a media frame encrypted by SFrame
 
-In order to packetize SFrame into RTP, packetization is done twice,
-once before SFrame encryption using media-format-specific RTP packetization into one large RTP packet,
-and once after SFrame encryption using SFrame-specific RTP packetization into many smaller RTP packets.
-SFrame encryption is applied to the payload of output the media-format-specific RTP packetization,
-and SFrame-specific RTP packetization is applied to the output of the SFrame encryption.
+In order to packetize SFrame into RTP, packetization is done in 2 stages.
+In the first stage, before SFrame encryption, media is packetized into RTP packets in a way specific to the media format.
+In the second stage, each RTP packet from the first stage is packetized into RTP packets in a way specific to SFrame.
+SFrame encryption is applied to the payload of each RTP packet between the first and second stages.
 
 For example, if a media frame to be encrypted by SFrame is encoded using VP8, the media frame is first
-packetized according to {{!RFC7741}} into one big RTP packet.  The VP8 RTP payload of the big RTP packet
-is then encrypted using SFrame, resulting in an SFrame-encrypted RTP payload of VP8.  SFrame-specific
-packetization is then applied to SFrame-encrypted RTP payload of VP8, resulting in many smaller RTP packets.
+packetized according to {{!RFC7741}} into one RTP packets with VP8-specific payloads.  Each of those
+VP8 RTP payloads are then encrypted using SFrame, resulting in an SFrame-encrypted RTP payload of VP8.
+SFrame-specific packetization is then applied to the SFrame-encrypted RTP payload of VP8, resulting in
+RTP packets with SFrame-specific RTP payloads.
 
 SFrame-specific packetization is done by first breaking up the output of SFrame encryption
 into fragments, and then prepending some fragment metadata necessary for depacketization.  Finally,
@@ -63,7 +63,7 @@ packetization.
 The SFrame-specific RTP payloads (fragments with prepended metadata) have the following format:
 
 ~~~
- 0                   1                   2 
+ 0                   1                   2
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |L| media PT    |  media frame ID               |
@@ -78,8 +78,8 @@ The L bit MUST be 0 for all fragments except for the last one of the media frame
 The media frame ID must be unique enough that a depacketizer may be able to differentiate
 the fragments of one media frame from another.
 The SSRC, timestamp, marker bit, CSRCs, and header extensions of the SFrame RTP packets MUST be the same
-as those of the output of the media-format-specific packetization
-The payload type of the SFrame RTP packets must be a payload type that indicates the payload is
+as those of the output of the media-format-specific packetization.
+The payload type of the SFrame RTP packets must be a payload type that indicates the payload
 format defined in this document, and it must have a negotiated RTP clock rate that is the same as the
 media-format-specific RTP packet.
 
@@ -89,12 +89,12 @@ Depacketization is done by doing the packetization process in reverse:
 
 1. The fragments of a given media frame ID are grouped together in order of fragment index and concatenated together, resulting in a media frame encrypted by SFrame.
 
-2. The media frame is decrypted using SFrame, resulting in a big codec-specific RTP payload.
+2. The media frame is decrypted using SFrame, resulting in a media-format-specific RTP payload.
 
-3. The big codec-specific RTP payload is combined with the RTP headers of the RTP packet with fragment index 0, resulting in a big media-format-specific RTP packet.
-   The "media PT" from the SFrame RTP payload header is used as the payload type of the result.
+3. The media-format-specific RTP payload is combined with the RTP headers of the RTP packet with fragment index 0, resulting in a media-format-specific RTP packet.
+   The "media PT" from the SFrame RTP payload header is used as the payload type of the media-format-specific RTP packet.
 
-4. The big media-format-specific RTP packet is passed in a codec-specific RTP depacetizer, resulting in a media frame.
+4. The media-format-specific RTP packet is passed into a media-format-specific RTP depacketizer, resulting in a media frame.
 
 
 # SFrame payload type negotiation
