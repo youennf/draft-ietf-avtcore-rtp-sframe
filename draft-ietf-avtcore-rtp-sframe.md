@@ -77,8 +77,11 @@ The frame index of each subsequent fragment MUST be one more than the previous f
 The L bit MUST be 0 for all fragments except for the last one of the media frame.
 The media frame ID must be unique enough that a depacketizer may be able to differentiate
 the fragments of one media frame from another.
-The SSRC, timestamp, marker bit, CSRCs, and header extensions of the SFrame RTP packets MUST be the same
+The SSRC, timestamp, marker bit, and CSRCs of the SFrame RTP packets MUST be the same
 as those of the output of the media-format-specific packetization.
+The header extensions of the SFrame RTP packets SHOULD be the same
+as those of the output of the media-format-specific packetization, but some may be omitted
+if it is known that the omitted header extensions do not need to be duplicated on each SFrame RTP packet.
 The payload type of the SFrame RTP packets must be a payload type that indicates the payload
 format defined in this document, and it must have a negotiated RTP clock rate that is the same as the
 media-format-specific RTP packet.

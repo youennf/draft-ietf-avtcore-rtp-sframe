@@ -4,8 +4,8 @@
 
 Audio/Video Transport Core Maintenance                       P. Thatcher
 Internet-Draft                                                 Microsoft
-Intended status: Standards Track                       25 September 2023
-Expires: 28 March 2024
+Intended status: Standards Track                           17 March 2024
+Expires: 18 September 2024
 
 
                      RTP Payload Format for SFrame
@@ -30,11 +30,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 March 2024.
+   This Internet-Draft will expire on 18 September 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -120,12 +120,16 @@ Table of Contents
    be 0 for all fragments except for the last one of the media frame.
    The media frame ID must be unique enough that a depacketizer may be
    able to differentiate the fragments of one media frame from another.
-   The SSRC, timestamp, marker bit, CSRCs, and header extensions of the
-   SFrame RTP packets MUST be the same as those of the output of the
-   media-format-specific packetization.  The payload type of the SFrame
-   RTP packets must be a payload type that indicates the payload format
-   defined in this document, and it must have a negotiated RTP clock
-   rate that is the same as the media-format-specific RTP packet.
+   The SSRC, timestamp, marker bit, and CSRCs of the SFrame RTP packets
+   MUST be the same as those of the output of the media-format-specific
+   packetization.  The header extensions of the SFrame RTP packets
+   SHOULD be the same as those of the output of the media-format-
+   specific packetization, but some may be omitted if it is known that
+   the omitted header extensions do not need to be duplicated on each
+   SFrame RTP packet.  The payload type of the SFrame RTP packets must
+   be a payload type that indicates the payload format defined in this
+   document, and it must have a negotiated RTP clock rate that is the
+   same as the media-format-specific RTP packet.
 
 4.  RTP depacketization of SFrame
 
