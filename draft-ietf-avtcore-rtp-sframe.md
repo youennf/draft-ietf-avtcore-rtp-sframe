@@ -26,6 +26,11 @@ author:
     name: Peter Thatcher
     organization: Microsoft
     email: pthatcher@microsoft.com
+ -
+    ins: Y. Fablet
+    name: Youenn Fablet
+    organization: Apple
+    email: youenn@apple.com
 
 normative:
   WebRTC_Encoded_Transform:
