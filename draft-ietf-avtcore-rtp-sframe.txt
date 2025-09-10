@@ -15,6 +15,23 @@ Abstract
 
    This document describes the RTP payload format of SFrame.
 
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at https://ietf-wg-
+   avtcore.github.io/draft-ietf-avtcore-rtp-sframe/draft-ietf-avtcore-
+   rtp-sframe.html.  Status information for this document may be found
+   at https://datatracker.ietf.org/doc/draft-ietf-avtcore-rtp-sframe/.
+
+   Discussion of this document takes place on the Audio/Video Transport
+   Core Maintenance Working Group mailing list (mailto:avt@ietf.org),
+   which is archived at https://mailarchive.ietf.org/arch/browse/avt/.
+   Subscribe at https://www.ietf.org/mailman/listinfo/avt/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe.
+
 Status of This Memo
 
    This Internet-Draft is submitted in full conformance with the
