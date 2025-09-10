@@ -8,6 +8,13 @@ ipr: trust200902
 area: "Applications and Real-Time"
 workgroup: "Audio/Video Transport Core Maintenance"
 keyword: Internet-Draft
+venue:
+  group: "Audio/Video Transport Core Maintenance"
+  type: "Working Group"
+  mail: "avt@ietf.org"
+  arch: "https://mailarchive.ietf.org/arch/browse/avt/"
+  github: "ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe"
+  latest: "https://ietf-wg-avtcore.github.io/draft-ietf-avtcore-rtp-sframe/draft-ietf-avtcore-rtp-sframe.html"
 
 stand_alone: yes
 pi: [toc, sortrefs, symrefs]
