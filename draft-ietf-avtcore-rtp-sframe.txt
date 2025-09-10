@@ -4,8 +4,9 @@
 
 Audio/Video Transport Core Maintenance                       P. Thatcher
 Internet-Draft                                                 Microsoft
-Intended status: Standards Track                       10 September 2025
-Expires: 14 March 2026
+Intended status: Standards Track                               Y. Fablet
+Expires: 14 March 2026                                             Apple
+                                                       10 September 2025
 
 
                      RTP Payload Format for SFrame
@@ -75,7 +76,7 @@ Table of Contents
    8.  Security Considerations
    9.  IANA Considerations
    10. Normative References
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -369,8 +370,13 @@ Table of Contents
               World Wide Web Consortium, "WebRTC Encoded Transform", May
               2025, <https://w3c.github.io/webrtc-encoded-transform/>.
 
-Author's Address
+Authors' Addresses
 
    Peter Thatcher
    Microsoft
    Email: pthatcher@microsoft.com
+
+
+   Youenn Fablet
+   Apple
+   Email: youenn@apple.com
