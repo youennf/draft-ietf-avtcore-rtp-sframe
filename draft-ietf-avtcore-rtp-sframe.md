@@ -27,6 +27,14 @@ author:
     organization: Microsoft
     email: pthatcher@microsoft.com
 
+normative:
+  WebRTC_Encoded_Transform:
+    author:
+      org: World Wide Web Consortium
+    title: WebRTC Encoded Transform
+    date: 2025-05
+    target: https://w3c.github.io/webrtc-encoded-transform/
+
 --- abstract
 
 This document describes the RTP payload format of SFrame.
@@ -35,8 +43,8 @@ This document describes the RTP payload format of SFrame.
 
 # Introduction
 
-SFrame {{?I-D.draft-ietf-sframe-enc-01}} describes an end-to-end encryption and authentication mechanism
-for media frames in a multiparty conference call, in which central media servers (SFUs) can access the
+SFrame {{!RFC9605}} describes an end-to-end encryption and authentication mechanism
+for media data in a multiparty conference call, in which central media servers (SFUs) can access the
 media metadata needed to make forwarding decisions without having access to the actual media.
 
 This document describes how to packetize a media frame encrypted using SFrame into RTP packets.
@@ -48,77 +56,150 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
+# SFrame format
 
-# RTP Packetization of a media frame encrypted by SFrame
+An SFrame ciphertext comprises a header and encrypted data.
+The SFrame header has a size varying between 1 to 17 bytes.
+The encrypted data can be of arbitrary length and is larger than the unencrypted data by a fixed overhead that depends on the encryption algorithm.
+The overhead can be up to 16 bytes.
 
-In order to packetize SFrame into RTP, packetization is done in 2 stages.
-In the first stage, before SFrame encryption, media is packetized into RTP packets in a way specific to the media format.
-In the second stage, each RTP packet from the first stage is packetized into RTP packets in a way specific to SFrame.
-SFrame encryption is applied to the payload of each RTP packet between the first and second stages.
+An SFrame ciphertext having an arbitrary long length, an application may decide to partition the data encrypted with SFrame
+small enough so that the SFrame ciphertext fits in a single RTP packet.
+We call this per-packet SFrame.
+This has the advantage of allowing to decrypt the content as soon as received.
 
-For example, if a media frame to be encrypted by SFrame is encoded using VP8, the media frame is first
-packetized according to {{!RFC7741}} into one RTP packets with VP8-specific payloads.  Each of those
-VP8 RTP payloads are then encrypted using SFrame, resulting in an SFrame-encrypted RTP payload of VP8.
-SFrame-specific packetization is then applied to the SFrame-encrypted RTP payload of VP8, resulting in
-RTP packets with SFrame-specific RTP payloads.
+An alternative is to encrypt the data, a media frame typically, and send the SFrame ciphertext over several RTP packets.
+We call this per-frame SFrame.
+This has the advantage of limiting the SFrame overhead, especially for video frames.
+This alternative is also compatible with {{WebRTC_Encoded_Transform}}, which is important for backward compatibility of existing services.
 
-SFrame-specific packetization is done by first breaking up the output of SFrame encryption
-into fragments, and then prepending some fragment metadata necessary for depacketization.  Finally,
-fragments are combined with values from the RTP header of the output of the media-format-specific
-packetization.
+The RTP format presented in this document supports both alternatives.
 
-The SFrame-specific RTP payloads (fragments with prepended metadata) have the following format:
+# RTP Header Usage
+
+The general RTP payload format for SFrame is depicted below.
 
 ~~~
- 0                   1                   2
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|L| media PT    |  media frame ID               |
-| fragment index                |  fragment ... |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |V=2|P|X|  CC   |M|     PT      |       sequence number         |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                           timestamp                           |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |           synchronization source (SSRC) identifier            |
+  +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  |            contributing source (CSRC) identifiers             |
+  |                             ....                              |
+  +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+  |S E x x x x x x|                                               |
+  |                                                               |
+  :                       SFrame payload                          :
+  |                                                               |
+  |                               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                               :    OPTIONAL RTP padding       |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ~~~
 
-The media PT must be the payload type of the output of the media-format-specific packetization.
-The frame index of the first fragment of each media frame MUST be 0.
-The frame index of each subsequent fragment MUST be one more than the previous fragment.
-The L bit MUST be 0 for all fragments except for the last one of the media frame.
-The media frame ID must be unique enough that a depacketizer may be able to differentiate
-the fragments of one media frame from another.
+The first byte of the RTP payload is the SFrame RTP header.
+
+The S bit of the SFrame RTP header MUST be 0 for all fragments except for the first one of the SFrame frame.
+
+The E bit of the SFrame RTP header MUST be 0 for all fragments except for the last one of the SFrame frame.
+
+The 6 remaining bits of the SFrame RTP header are reserved for future use.
+
+The payload type (PT) identifies the format of the media encrypted with SFrame.
+
 The SSRC, timestamp, marker bit, and CSRCs of the SFrame RTP packets MUST be the same
 as those of the output of the media-format-specific packetization.
 The header extensions of the SFrame RTP packets SHOULD be the same
 as those of the output of the media-format-specific packetization, but some may be omitted
 if it is known that the omitted header extensions do not need to be duplicated on each SFrame RTP packet.
-The payload type of the SFrame RTP packets must be a payload type that indicates the payload
-format defined in this document, and it must have a negotiated RTP clock rate that is the same as the
-media-format-specific RTP packet.
+
+# RTP Packetization of SFrame
+
+SFrame packets can be generated either from RTP media packets or from media frames as defined by {{WebRTC_Encoded_Transform}}.
+
+For per-packet SFrame, the following processing is done, with a media frame as input:
+
+1. Generate a group of RTP media packets from the media frame using a media-format-specific packetizer.
+   The media-format-specific packetizer needs to be made aware of the SFrame overhead that happens to each RTP packet.
+2. For each RTP packet of the group, encrypt its payload with SFrame.
+3. Prepend to each RTP packet payload a SFrame RTP header with the S and E bits set to 1.
+4. Send each RTP packet of the group.
+
+For per-frame SFrame, the following processing is done, with a media frame as input:
+
+1. Generate a SFrame ciphertext from the media frame data.
+2. Fragment the SFrame ciphertext in a group of payloads so that RTP packets generated from them do not exceed the network maximum transmission unit size.
+3. Prepend a zero byte as the SFrame RTP header to all payloads of the group.
+4. Set the first bit S of the SFrame RTP header of the first packet to 1.
+5. Set the second bit E of the SFrame RTP header of the last packet to 1.
+6. Generate a group of RTP packets from the group of payloads, using the media frame to generate the RTP header, including RTP header extensions.
+7. Send each RTP packet of the RTP packet group.
 
 # RTP depacketization of SFrame
 
-Depacketization is done by doing the packetization process in reverse:
+Reception of SFrame packets is done as follows:
 
-1. The fragments of a given media frame ID are grouped together in order of fragment index and concatenated together, resulting in a media frame encrypted by SFrame.
+1. The fragments of a given SFrame ciphertext are grouped together in order of the RTP sequence number,
+   the first packet of the group having its S bit set to 1 and the last packet of the group havint its E bit set to 1.
+   All packets in between the first and last needs to be in the group.
+2. Concatenate the payloads of all packets of the group to form the SFrame ciphertext.
+3. Decrypt the SFrame ciphertext to obtain the media decrypted data.
+4. If per-packet SFrame is being used, the following processing is done:
+   1. assert that the group of packets consist of a single packet.
+   2. Set the media decrypted data as the payload of the packet and send the packet to the media-format-specific RTP depacketizer.
+   3. If the depacketizer cannot generate a media frame yet, abort these steps. Otherwise, generate a media frame from the depacketizer.
+5. If per-frame SFrame is being used, the following processing is done:
+   1. assert that the group of packets all have the same payload type.
+   2. Extract the media metadata from the group of packets.
+   3. Generate a media frame from the media decrypted data and the media metadata.
+6. Send the media frame to the receiving pipeline.
 
-2. The media frame is decrypted using SFrame, resulting in a media-format-specific RTP payload.
+# SFrame SDP negotiation
 
-3. The media-format-specific RTP payload is combined with the RTP headers of the RTP packet with fragment index 0, resulting in a media-format-specific RTP packet.
-   The "media PT" from the SFrame RTP payload header is used as the payload type of the media-format-specific RTP packet.
+SFrame packetization is indicated via a new "a=sframe" SDP attribute defined in this specification.
+This attribute is used at media level, it does not appear at session level.
 
-4. The media-format-specific RTP packet is passed into a media-format-specific RTP depacketizer, resulting in a media frame.
+The presence of the "a=sframe" attribute in a media section (in either an offer or an answer) indicates that the
+endpoint is expecting to receive RTP packets encrypted with SFrame for that media section, as defined below.
 
+Once each peer has verified that the other party expects to receive SFrame RTP packets, senders are expected to send SFrame encrypted RTP packets.
+If one peer expects to use SFrame for a media section and identifies that the other peer does not support it, the peer
+is expected to stop the transceiver associated to the media section, which will generate a zero port for that m-section.
 
-# SFrame payload type negotiation
+When SFrame is in use for that media section, it will apply to the relevant media encodings defined for that media section.
+This includes RTP payload types bound to media packetizers and media depacketizers as defined in {{!RFC7656}}, typically  audio formats such as Opus and RTP video formats such as H264.
+This notably includes RTP payload types representing {{WebRTC_Encoded_Transform}} [encoded video frame formats](https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedvideoframe-data) and [encoded audio frame formats](https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedaudioframe-data).
 
-Because the payload type of an RTP packet that results from SFrame-specific packetization must match the
-clock rate of the payload type of the RTP packet that results from media-format-specific packetization,
-it may be necessary to negotiate more than one SFrame payload type.  For example, if one were to use SDP
-to negotiate payload types, the following payload types could be negotiated with different clock rates:
+This does not include RTP-Based Redundancy mechanisms as defined in {!RFC7656}}.
+For instance, RTX defined in {{!RFC4588}} will retransmit SFrame based packets.
+Forward error correction formats as defined in {{!RFC5109}} will protect the encrypted content.
+For Redundant Audio Data, known as RED, as defined in {{!RFC2198}}, a RED packetizer will take as input SFrame encrypted media data instead of unencrypted media data.
+
+If BUNDLE is in use and the "a=sframe" attribute is present for a media section but not for another media section of the same BUNDLE,
+payload types for media encodings that are relevant for SFrame MUST not be reused between the two media sections.
+
+Questions:
+
+1. Should we precise how RTX/FEC works with SFrame packetization? No impact AFAIK since RTX/FEC would work on packets (whether SFramed or not).
+2. Is RED current proposal (transmit SFrame ciphertext blocks) good enough? An alternative is to have SFrame being applied on the entire RED packet payload.
+3. Should we allow `a=sframe` at session level to mean that all media sections want sframe?
+
+Here is an example of SFrame being negotiated for audio (opus and CN) and for video (H264 and VP8):
 
 ~~~
-m=audio 50000 RTP/SAVPF 96
-a=rtpmap:96 sframe/48000
-m=video 50002 RTP/SAVPF 97
-a=rtpmap:97 sframe/90000
+m=audio 50000 RTP/SAVPF 10 11
+a=sframe
+a=rtpmap:10 opus/48000/2
+a=rtpmap:11 CN/8000
+
+m=video 50002 RTP/SAVPF 100 101
+a=sframe
+a=rtpmap:100 H264/90000
+a=rtpmap:101 VP8/90000
 ~~~
 
 # Security Considerations
