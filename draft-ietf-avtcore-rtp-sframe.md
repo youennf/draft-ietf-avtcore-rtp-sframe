@@ -1,5 +1,5 @@
 ---
-title: "RTP Payload Format for SFrame"
+title: "SFrame usage with RTP"
 docname: draft-ietf-avtcore-rtp-sframe-latest
 category: std
 date: {DATE}
@@ -31,6 +31,11 @@ author:
     name: Youenn Fablet
     organization: Apple
     email: youenn@apple.com
+ -
+    ins: A. Rosenberg
+    name: Aron Rosenberg
+    organization: Apple
+    email: aron.rosenberg@apple.com
 
 normative:
   WebRTC_Encoded_Transform:
@@ -42,7 +47,7 @@ normative:
 
 --- abstract
 
-This document describes the RTP payload format of SFrame.
+This document describes the RTP payload format of SFrame, its use in SDP, and per stream key derivation.
 
 --- middle
 
@@ -52,7 +57,8 @@ SFrame {{!RFC9605}} describes an end-to-end encryption and authentication mechan
 for media data in a multiparty conference call, in which central media servers (SFUs) can access the
 media metadata needed to make forwarding decisions without having access to the actual media.
 
-This document describes how to packetize a media frame encrypted using SFrame into RTP packets.
+This document describes how to packetize a media frame encrypted using SFrame into RTP packets, how to
+signal support in SDP, and how to derive per SSRC SFrame keys from the common key.
 
 # Terminology and Notation
 
@@ -206,6 +212,26 @@ a=sframe
 a=rtpmap:100 H264/90000
 a=rtpmap:101 VP8/90000
 ~~~
+
+# SFrame SDP RTP Key Management
+
+When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MUST be applied to produce a unique key per SSRC.
+The resulting per SSRC stream key is used as the initial key in the session and the input to the SFrame `derive_key_salt` function.
+
+This derivation step starts with the initial `base_key` at the start of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
+the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows
+
+~~~
+ssrc_key[i] = HKDF-Expand(HKDF-Extract("", base_key[i]),"SFrame 1.0 RTP Stream " + SSRC, CipherSuite.Nh)
+~~~
+
+In the derivation of ssrc_key:
+
+* The SSRC is encoded as a 4-byte big-endian integer.
+
+* The same CipherSuite is used for this step as for the per packet / frame step the resulting key will be used with.
+
+If SFrame specified ratcheting is used, the ratchet step is done on each ssrc_key derived stream key
 
 # Security Considerations
 
