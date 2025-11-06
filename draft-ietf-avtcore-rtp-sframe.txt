@@ -5,8 +5,8 @@
 Audio/Video Transport Core Maintenance                       P. Thatcher
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                               Y. Fablet
-Expires: 14 March 2026                                             Apple
-                                                       10 September 2025
+Expires: 10 May 2026                                               Apple
+                                                         6 November 2025
 
 
                      RTP Payload Format for SFrame
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 March 2026.
+   This Internet-Draft will expire on 10 May 2026.
 
 Copyright Notice
 
@@ -106,10 +106,10 @@ Table of Contents
    algorithm.  The overhead can be up to 16 bytes.
 
    An SFrame ciphertext having an arbitrary long length, an application
-   may decide to partition the data encrypted with SFrame small enough
-   so that the SFrame ciphertext fits in a single RTP packet.  We call
-   this per-packet SFrame.  This has the advantage of allowing to
-   decrypt the content as soon as received.
+   may decide to partition the data encrypted with SFrame into pieces
+   small enough that the SFrame ciphertext fits in a single RTP packet.
+   We call this per-packet SFrame.  This has the advantage of allowing
+   to decrypt the content as soon as received.
 
    An alternative is to encrypt the data, a media frame typically, and
    send the SFrame ciphertext over several RTP packets.  We call this
@@ -144,16 +144,16 @@ Table of Contents
      |                               :    OPTIONAL RTP padding       |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-   The first byte of the RTP payload is the SFrame RTP header.
+   The first byte of the RTP payload is the SFrame payload descriptor.
 
-   The S bit of the SFrame RTP header MUST be 0 for all fragments except
-   for the first one of the SFrame frame.
+   The S bit of the SFrame payload descriptor MUST be 0 for all
+   fragments except for the first one of the SFrame frame.
 
-   The E bit of the SFrame RTP header MUST be 0 for all fragments except
-   for the last one of the SFrame frame.
+   The E bit of the SFrame payload descriptor MUST be 0 for all
+   fragments except for the last one of the SFrame frame.
 
-   The 6 remaining bits of the SFrame RTP header are reserved for future
-   use.
+   The 6 remaining bits of the SFrame payload descriptor are reserved
+   for future use.
 
    The payload type (PT) identifies the format of the media encrypted
    with SFrame.
@@ -182,8 +182,8 @@ Table of Contents
    2.  For each RTP packet of the group, encrypt its payload with
        SFrame.
 
-   3.  Prepend to each RTP packet payload a SFrame RTP header with the S
-       and E bits set to 1.
+   3.  Prepend to each RTP packet payload a SFrame payload descriptor
+       with the S and E bits set to 1.
 
    4.  Send each RTP packet of the group.
 
@@ -196,14 +196,14 @@ Table of Contents
        packets generated from them do not exceed the network maximum
        transmission unit size.
 
-   3.  Prepend a zero byte as the SFrame RTP header to all payloads of
-       the group.
+   3.  Prepend a zero byte as the SFrame payload descriptor to all
+       payloads of the group.
 
-   4.  Set the first bit S of the SFrame RTP header of the first packet
-       to 1.
+   4.  Set the first bit S of the SFrame payload descriptor of the first
+       packet to 1.
 
-   5.  Set the second bit E of the SFrame RTP header of the last packet
-       to 1.
+   5.  Set the second bit E of the SFrame payload descriptor of the last
+       packet to 1.
 
    6.  Generate a group of RTP packets from the group of payloads, using
        the media frame to generate the RTP header, including RTP header
@@ -218,8 +218,8 @@ Table of Contents
    1.  The fragments of a given SFrame ciphertext are grouped together
        in order of the RTP sequence number, the first packet of the
        group having its S bit set to 1 and the last packet of the group
-       havint its E bit set to 1.  All packets in between the first and
-       last needs to be in the group.
+       having its E bit set to 1.  All packets between the first and
+       last need to be in the group.
 
    2.  Concatenate the payloads of all packets of the group to form the
        SFrame ciphertext.
@@ -229,7 +229,7 @@ Table of Contents
    4.  If per-packet SFrame is being used, the following processing is
        done:
 
-       1.  assert that the group of packets consist of a single packet.
+       1.  Assert that the group of packets consists of a single packet.
 
        2.  Set the media decrypted data as the payload of the packet and
            send the packet to the media-format-specific RTP
@@ -242,7 +242,7 @@ Table of Contents
    5.  If per-frame SFrame is being used, the following processing is
        done:
 
-       1.  assert that the group of packets all have the same payload
+       1.  Assert that the group of packets all have the same payload
            type.
 
        2.  Extract the media metadata from the group of packets.
@@ -267,7 +267,7 @@ Table of Contents
    SFrame RTP packets, senders are expected to send SFrame encrypted RTP
    packets.  If one peer expects to use SFrame for a media section and
    identifies that the other peer does not support it, the peer is
-   expected to stop the transceiver associated to the media section,
+   expected to stop the transceiver associated with the media section,
    which will generate a zero port for that m-section.
 
    When SFrame is in use for that media section, it will apply to the
@@ -282,8 +282,8 @@ Table of Contents
    rtcencodedaudioframe-data).
 
    This does not include RTP-Based Redundancy mechanisms as defined in
-   {!RFC7656}}. For instance, RTX defined in [RFC4588] will retransmit
-   SFrame based packets.  Forward error correction formats as defined in
+   [RFC7656].  For instance, RTX defined in [RFC4588] will retransmit
+   SFrame-based packets.  Forward error correction formats as defined in
    [RFC5109] will protect the encrypted content.  For Redundant Audio
    Data, known as RED, as defined in [RFC2198], a RED packetizer will
    take as input SFrame encrypted media data instead of unencrypted
@@ -292,7 +292,7 @@ Table of Contents
    If BUNDLE is in use and the "a=sframe" attribute is present for a
    media section but not for another media section of the same BUNDLE,
    payload types for media encodings that are relevant for SFrame MUST
-   not be reused between the two media sections.
+   NOT be reused between the two media sections.
 
    Questions:
 
