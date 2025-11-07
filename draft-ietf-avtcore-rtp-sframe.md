@@ -231,7 +231,8 @@ In the derivation of ssrc_key:
 
 * The same CipherSuite is used for this step as for the per packet / frame step the resulting key will be used with.
 
-If SFrame specified ratcheting is used, the ratchet step is done on each ssrc_key derived stream key
+If SFrame specified ratcheting is used, the first ratchet step is done on the initial ssrc_key derived stream key, and then each subsequent
+ratchet is done on the previous ratcheted key using.
 
 # Security Considerations
 
