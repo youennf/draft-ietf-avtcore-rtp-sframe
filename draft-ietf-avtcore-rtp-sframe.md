@@ -222,10 +222,10 @@ This derivation step starts with the initial `base_key` at the start of the sess
 the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows:
 
 ~~~
-rtp_ssrc_key[i] = HKDF-Expand(HKDF-Extract(SSRC, base_key[i]),"SFrame 1.0 RTP Stream", CipherSuite.Nh)
+ssrc_key[i] = HKDF-Expand(HKDF-Extract(SSRC, base_key[i]), "SFrame 1.0 RTP Stream", CipherSuite.Nh)
 ~~~
 
-In the derivation of rtp_ssrc_key:
+In the derivation of ssrc_key:
 
 * The SSRC is encoded as a 4-byte big-endian byte sequence and passed as the salt value to HKDF-Extract.
 
