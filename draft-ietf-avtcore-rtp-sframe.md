@@ -231,8 +231,12 @@ In the derivation of ssrc_key:
 
 * The same CipherSuite is used for this step as for the per packet / frame step the resulting key will be used with.
 
+# SFrame Ratcheting with per SSRC keys
+
 If ratcheting is used, the per SSRC key derivation step MUST be done once at the start of the session, and then each subsequent
-ratchet is done on the per SSRC specific keys using the SFrame ratcheting algorithm described in section 5.1 of {{!RFC9605}}. This results in a key tree that looks like the following for an offer that has three different SSRC's called a, b, and c.
+ratchet is done on the per SSRC specific keys using the SFrame ratcheting algorithm described in section 5.1 of {{!RFC9605}}.
+
+This results in a key tree that looks like the following for an offer that has three different SSRC's a, b, and c.
 
 ~~~
 ┌────────┐
