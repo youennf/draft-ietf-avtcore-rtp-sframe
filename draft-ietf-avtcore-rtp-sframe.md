@@ -219,7 +219,7 @@ When SFrame is used with SDP and specifies RTP as the media transport, an additi
 The resulting per SSRC stream key is used as the initial key in the session and the input to the SFrame `derive_key_salt` function.
 
 This derivation step starts with the initial `base_key` at the start of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
-the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows
+the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows:
 
 ~~~
 ssrc_key[i] = HKDF-Expand(HKDF-Extract("", base_key[i]),"SFrame 1.0 RTP Stream " + SSRC, CipherSuite.Nh)
@@ -231,8 +231,23 @@ In the derivation of ssrc_key:
 
 * The same CipherSuite is used for this step as for the per packet / frame step the resulting key will be used with.
 
-If SFrame specified ratcheting is used, the first ratchet step is done on the initial ssrc_key derived stream key, and then each subsequent
-ratchet is done on the previous ratcheted key using.
+If ratcheting is used, the per SSRC key derivation step MUST be done once at the start of the session, and then each subsequent
+ratchet is done on the per SSRC specific keys using the SFrame ratcheting algorithm described in section 5.1 of {{!RFC9605}}. This results in a key tree that looks like the following for an offer that has three different SSRC's called a, b, and c.
+
+~~~
+┌────────┐
+│base_key│
+└───┬────┘
+    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    ├───►│ssrc_key_a[0]├──►│ssrc_key_a[1]├──►│ssrc_key_a[N]│
+    │    └─────────────┘   └─────────────┘   └─────────────┘
+    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    ├───►│ssrc_key_b[0]├──►│ssrc_key_b[1]├──►│ssrc_key_b[N]│
+    │    └─────────────┘   └─────────────┘   └─────────────┘
+    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    └───►│ssrc_key_c[0]├──►│ssrc_key_c[1]├──►│ssrc_key_c[N]│
+         └─────────────┘   └─────────────┘   └─────────────┘
+~~~
 
 # Security Considerations
 
