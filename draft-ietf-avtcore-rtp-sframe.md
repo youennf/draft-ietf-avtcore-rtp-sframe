@@ -215,10 +215,10 @@ a=rtpmap:101 VP8/90000
 
 # SFrame SDP RTP Key Management
 
-When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MUST be applied to produce a unique key per SSRC.
+When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MUST be applied to produce a unique key per SDP m= line using the SSRC.
 The resulting per SSRC stream key is used as the initial key in the session and the input to the SFrame `derive_key_salt` function.
 
-This derivation step starts with the initial `base_key` at the start of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
+This initial derivation step starts with the `base_key` of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
 the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows:
 
 ~~~
@@ -241,16 +241,17 @@ This results in a key tree that looks like the following for an offer that has t
 ~~~
 ┌────────┐
 │base_key│
-└───┬────┘
-    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    ├───►│ssrc_key_a[0]├──►│ssrc_key_a[1]├──►│ssrc_key_a[N]│
-    │    └─────────────┘   └─────────────┘   └─────────────┘
-    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    ├───►│ssrc_key_b[0]├──►│ssrc_key_b[1]├──►│ssrc_key_b[N]│
-    │    └─────────────┘   └─────────────┘   └─────────────┘
-    │    ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    └───►│ssrc_key_c[0]├──►│ssrc_key_c[1]├──►│ssrc_key_c[N]│
-         └─────────────┘   └─────────────┘   └─────────────┘
+└───┬────┘ Initial
+    │     Derivation       Ratchet 1         Ratchet 2         Ratchet N
+    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    ├───►│ssrc_key_a├──►│ssrc_key_a[1]├──►│ssrc_key_a[2]├──►│ssrc_key_a[N]│
+    │    └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
+    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    ├───►│ssrc_key_b├──►│ssrc_key_b[1]├──►│ssrc_key_b[2]├──►│ssrc_key_b[N]│
+    │    └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
+    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+    └───►│ssrc_key_c├──►│ssrc_key_c[1]├──►│ssrc_key_c[2]├──►│ssrc_key_c[N]│
+         └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
 ~~~
 
 # Security Considerations
