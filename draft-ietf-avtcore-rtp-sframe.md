@@ -239,19 +239,19 @@ ratchet is done on the per SSRC specific keys using the SFrame ratcheting algori
 This results in a key tree that looks like the following for an offer that has three different SSRC's a, b, and c.
 
 ~~~
-┌────────┐
-│base_key│
-└───┬────┘ Initial
-    │     Derivation       Ratchet 1         Ratchet 2         Ratchet N
-    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    ├───►│ssrc_key_a├──►│ssrc_key_a[1]├──►│ssrc_key_a[2]├──►│ssrc_key_a[N]│
-    │    └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
-    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    ├───►│ssrc_key_b├──►│ssrc_key_b[1]├──►│ssrc_key_b[2]├──►│ssrc_key_b[N]│
-    │    └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
-    │    ┌──────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-    └───►│ssrc_key_c├──►│ssrc_key_c[1]├──►│ssrc_key_c[2]├──►│ssrc_key_c[N]│
-         └──────────┘   └─────────────┘   └─────────────┘   └─────────────┘
++--------+
+|base_key|
++---┬----+ Initial
+    |     Derivation       Ratchet 1         Ratchet 2         Ratchet N
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |--->|ssrc_key_a|-->|ssrc_key_a[1]|-->|ssrc_key_a[2]|-->|ssrc_key_a[N]|
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |--->|ssrc_key_b|-->|ssrc_key_b[1]|-->|ssrc_key_b[2]|-->|ssrc_key_b[N]|
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    +--->|ssrc_key_c|-->|ssrc_key_c[1]|-->|ssrc_key_c[2]|-->|ssrc_key_c[N]|
+         +----------+   +-------------+   +-------------+   +-------------+
 ~~~
 
 # Security Considerations
