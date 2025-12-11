@@ -1296,7 +1296,7 @@ if it is known that the omitted header extensions do not need to be duplicated o
         <h3 id="name-rtp-packetization-of-sframe">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-rtp-packetization-of-sframe" class="section-name selfRef">RTP Packetization of SFrame</a>
         </h3>
-<p id="section-5.1-1">For a given SFrame frame to be sent, the following processing is done:
+<p id="section-5.1-1">For a given SFrame frame to be sent, the following steps are done:
 1. Let frame be the SFrame frame content to be sent.
 1. Let metadata be the SFrame frame metadata. It contains information such as payload type, timestamp, synchronization source, contributing sources, marker bit, header extensions, and payload origin.
 1. Fragment the frame in a list of payloads so that RTP packets generated from them do not exceed the network maximum transmission unit size.
