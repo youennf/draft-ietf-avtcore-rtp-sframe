@@ -1370,7 +1370,7 @@ The two kind of processing are presented below.<a href="#section-5.1-2" class="p
 1. If the frame metadata content origin is raw, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.
 1. Otherwise, run the following sub-steps:
    1. Let packetizer be a media-format-specific packetizer selected from the frame payload type.
-   1. Send the media decrypted data and frame metadata to the packetizer.
+   1. Send the media decrypted data and SFrame metadata to the packetizer.
    1. If the packetizer generates a media frame, send the media frame to the receiving pipeline.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>

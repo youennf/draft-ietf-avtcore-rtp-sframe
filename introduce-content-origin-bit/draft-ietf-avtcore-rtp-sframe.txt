@@ -258,7 +258,7 @@ Table of Contents
    media decrypted data and SFrame metadata to the receiving pipeline.
    1.  Otherwise, run the following sub-steps: 1.  Let packetizer be a
    media-format-specific packetizer selected from the frame payload
-   type.  1.  Send the media decrypted data and frame metadata to the
+   type.  1.  Send the media decrypted data and SFrame metadata to the
    packetizer.  1.  If the packetizer generates a media frame, send the
    media frame to the receiving pipeline.
 
