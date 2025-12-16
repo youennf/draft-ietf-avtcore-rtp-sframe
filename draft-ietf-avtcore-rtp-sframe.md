@@ -31,6 +31,11 @@ author:
     name: Youenn Fablet
     organization: Apple
     email: youenn@apple.com
+-
+    ins: A. Rosenberg
+    name: Aron Rosenberg
+    organization: Apple
+    email: aron.rosenberg@apple.com
 
 normative:
   WebRTC_Encoded_Transform:
