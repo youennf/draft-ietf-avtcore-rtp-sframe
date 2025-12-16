@@ -58,7 +58,7 @@ for media data in a multiparty conference call, in which central media servers (
 media metadata needed to make forwarding decisions without having access to the actual media.
 
 This document describes how to packetize a media frame encrypted using SFrame into RTP packets, how to
-signal support in SDP, and how to derive per SSRC SFrame keys from the common key.
+signal support in SDP, and how to derive per SSRC SFrame keys from a common key.
 
 # Terminology and Notation
 
@@ -222,7 +222,7 @@ This initial derivation step starts with the `base_key` of the session. Then, ea
 the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows:
 
 ~~~
-ssrc_key[i] = HKDF-Expand(HKDF-Extract(SSRC, base_key[i]), "SFrame 1.0 RTP Stream", CipherSuite.Nh)
+ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", CipherSuite.Nh)
 ~~~
 
 In the derivation of ssrc_key:
@@ -266,7 +266,7 @@ Type: attribute
 
 SDP Name: sframe
 
-Usage Level: session, media
+Usage Level: media
 
 Mux Category: NORMAL
 
