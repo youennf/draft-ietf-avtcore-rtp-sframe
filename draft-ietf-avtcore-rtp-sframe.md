@@ -228,8 +228,9 @@ In the derivation of ssrc_key:
 
 # SFrame Ratcheting with per SSRC keys
 
-If ratcheting is used, the per SSRC key derivation step MUST be done once at the start of the session, and then each subsequent
+If ratcheting is used with this per SSRC key derivation algorithm, the per SSRC key derivation step MUST be done once at the start of the session, and then each subsequent
 ratchet is done on the per SSRC specific keys using the SFrame ratcheting algorithm described in section 5.1 of {{!RFC9605}}.
+In this per SSRC key derivation algorithm, the same algorithm defined in section 5.1 of {{!RFC9605}} is used to produce the KID from the key_generation and ratchet_steps inputs. This results in all streams using the same KID, but different keys and CTR values.
 
 This results in a key tree that looks like the following for an offer that has three different SSRC's a, b, and c.
 
