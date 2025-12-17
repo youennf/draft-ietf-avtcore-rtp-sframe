@@ -210,7 +210,7 @@ a=rtpmap:101 VP8/90000
 
 # SFrame SDP RTP Key Management
 
-When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MUST be applied to produce a unique key per SDP m= line using the SSRC.
+When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MAY be applied to produce a unique key per SDP m= line using the SSRC.
 The resulting per SSRC stream key is used as the initial key in the session and the input to the SFrame `derive_key_salt` function.
 
 This initial derivation step starts with the `base_key` of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
