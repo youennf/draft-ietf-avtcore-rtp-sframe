@@ -1,5 +1,5 @@
 ---
-title: "SFrame usage with RTP and SDP"
+title: "RTP Payload Format for SFrame"
 docname: draft-ietf-avtcore-rtp-sframe-latest
 category: std
 date: {DATE}
