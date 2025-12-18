@@ -256,14 +256,4 @@ This document is subject to the security considerations of SFrame.
 
 # IANA Considerations
 
-This document defines a new attribute name to be listed in the "attribute-name" registry of the "SDP Parameters" registry group, according to the following data:
-
-Type: attribute
-
-SDP Name: sframe
-
-Usage Level: media
-
-Mux Category: NORMAL
-
-Reference: RFC XXXX
+None
