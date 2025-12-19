@@ -42,7 +42,7 @@ normative:
 
 --- abstract
 
-This document describes the RTP payload format of SFrame.
+This document describes the RTP payload format of SFrame, its use in SDP, and per stream key derivation.
 
 --- middle
 
@@ -52,7 +52,8 @@ SFrame {{!RFC9605}} describes an end-to-end encryption and authentication mechan
 for media data in a multiparty conference call, in which central media servers (SFUs) can access the
 media metadata needed to make forwarding decisions without having access to the actual media.
 
-This document describes how to packetize a media frame encrypted using SFrame into RTP packets.
+This document describes how to packetize a media frame encrypted using SFrame into RTP packets, how to
+signal support in SDP, and how to derive per SSRC SFrame keys from a common key.
 
 # Terminology and Notation
 
@@ -205,6 +206,48 @@ m=video 50002 RTP/SAVPF 100 101
 a=sframe
 a=rtpmap:100 H264/90000
 a=rtpmap:101 VP8/90000
+~~~
+
+# SFrame SDP RTP Key Management
+
+When SFrame is used with SDP and specifies RTP as the media transport, an additional key derivation step MAY be applied to produce a unique key per SDP m= line using the SSRC.
+The resulting per SSRC stream key is used as the initial key in the session for that m= line and becomes the input to the SFrame `derive_key_salt` function.
+
+This initial derivation step starts with the `base_key` of the session. Then, each SSRC stream involved in the SDP session, MUST perform this derivation step to produce
+the initial SFrame `ssrc_key` for that stream in the SDP session. This step is performed using HMAC-based Key Derivation Function (HKDF) {{!RFC5869}} as follows:
+
+~~~
+ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", CipherSuite.Nh)
+~~~
+
+In the derivation of ssrc_key:
+
+* The SSRC is encoded as a 4-byte big-endian byte sequence and passed as the salt value to HKDF-Extract.
+
+* The same CipherSuite is used for this step as for the per packet / frame step the resulting key will be used with.
+
+# SFrame Ratcheting with per SSRC keys
+
+If ratcheting is used with this per SSRC key derivation algorithm, the per SSRC key derivation step MUST be done once at the start of the session, and then each subsequent
+ratchet is done on the per SSRC specific keys using the SFrame ratcheting algorithm described in section 5.1 of {{!RFC9605}}.
+In this per SSRC key derivation algorithm, the same algorithm defined in section 5.1 of {{!RFC9605}} is used to produce the KID from the key_generation and ratchet_steps inputs. This results in all streams using the same KID, but different keys and CTR values.
+
+This results in a key tree that looks like the following for an offer that has three different SSRC's a, b, and c.
+
+~~~
++--------+
+|base_key|
++---┬----+ Initial
+    |     Derivation       Ratchet 1         Ratchet 2         Ratchet N
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |--->|ssrc_key_a|-->|ssrc_key_a[1]|-->|ssrc_key_a[2]|-->|ssrc_key_a[N]|
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |--->|ssrc_key_b|-->|ssrc_key_b[1]|-->|ssrc_key_b[2]|-->|ssrc_key_b[N]|
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    |    +----------+   +-------------+   +-------------+   +-------------+
+    +--->|ssrc_key_c|-->|ssrc_key_c[1]|-->|ssrc_key_c[2]|-->|ssrc_key_c[N]|
+         +----------+   +-------------+   +-------------+   +-------------+
 ~~~
 
 # Security Considerations
