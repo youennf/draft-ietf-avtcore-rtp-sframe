@@ -132,6 +132,7 @@ if it is known that the omitted header extensions do not need to be duplicated o
 ## RTP Packetization of SFrame
 
 For a given SFrame frame to be sent, the following steps are done:
+
 1. Let content be the SFrame frame payload to be sent.
 1. Let metadata be the SFrame frame metadata. It contains information such as payload type, timestamp, synchronization source, contributing sources, marker bit, header extensions, and payload origin.
 1. Fragment the content in a list of payloads so that RTP packets generated from them do not exceed the network maximum transmission unit size.
@@ -152,6 +153,7 @@ The two kind of processing are presented below.
 ### Per-frame SFrame sending
 
 For per-frame SFrame, the following steps are done on sender side, with a media frame as input:
+
 1. Generate a list of RTP packets from the media frame using the media-format-specific packetizer.
 1. Let packet be the last RTP packet in the list.
 1. Let payload be a SFrame ciphertext generated from the media frame data.
@@ -164,7 +166,10 @@ For per-frame SFrame, the following steps are done on sender side, with a media 
 ### Per-packet SFrame sending
 
 For per-packet SFrame, the following steps are done on sender side, with a media frame as input:
+
 1. Generate a list of RTP packets from the media frame using the media-format-specific packetizer.
+   The packetizer can be made aware of the SFrame overhead so that packet payloads do not get further split when doing SFrame packetization,
+   to get a 1-1 match between the generated RTP packets and the SFrame encrypted sent RTP packets.
 1. For each RTP packet in the list, run the following steps:
    1. Let payload be a SFrame ciphertext generated from the RTP packet payload.
    1. Let metadata be a SFrame frame metadata.
@@ -175,6 +180,7 @@ For per-packet SFrame, the following steps are done on sender side, with a media
 ## RTP depacketization of SFrame
 
 When receiving a RTP SFrame packet, the following steps are done:
+
 1. Add the packet to the set of received RTP packets.
 1. Sort the set in order of the RTP sequence number.
 1. Search for the smallest list of RTP packets in the set such that:
@@ -191,7 +197,7 @@ When receiving a RTP SFrame packet, the following steps are done:
    1. The metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.
    1. The metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.
 1. Decrypt the SFrame payload to obtain the media decrypted data.
-1. If the frame metadata content origin is raw, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.
+1. If the frame metadata content origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.
 1. Otherwise, run the following sub-steps:
    1. Let packetizer be a media-format-specific packetizer selected from the frame payload type.
    1. Send the media decrypted data and SFrame metadata to the packetizer.
