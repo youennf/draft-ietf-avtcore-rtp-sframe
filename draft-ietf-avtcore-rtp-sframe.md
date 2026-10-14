@@ -92,7 +92,7 @@ This alternative is also compatible with {{WebRTC_Encoded_Transform}}, which is 
 
 The RTP format presented in this document supports both alternatives.
 
-# RTP Header Usage
+# RTP Header Usage {#rtp-header-usage}
 
 The general RTP payload format for SFrame is depicted below.
 
@@ -133,8 +133,12 @@ The 5 remaining bits of the SFrame payload descriptor are reserved for future us
 
 The payload type (PT) identifies the format of the media encrypted with SFrame.
 
-The SSRC, timestamp, marker bit, and CSRCs of the SFrame RTP packets MUST be the same
+The SSRC, timestamp, and CSRCs of all the SFrame RTP packets of a SFrame frame MUST be the same
 as those of the output of the media-format-specific packetization.
+The marker bit MUST be set only on the last SFrame RTP packet of the SFrame frame (the one with the E bit set),
+and only if the marker bit is set in the SFrame frame metadata.
+It MUST be 0 on all the other SFrame RTP packets of the SFrame frame.
+Receivers MUST ignore the marker bit of SFrame RTP packets that do not have the E bit set.
 The header extensions of the SFrame RTP packets SHOULD be the same
 as those of the output of the media-format-specific packetization, but some may be omitted
 if it is known that the omitted header extensions do not need to be duplicated on each SFrame RTP packet.
@@ -156,7 +160,7 @@ For a given SFrame frame to be sent, the following steps are done:
    1. Prepend the payload with the descriptor.
    1. Let packet be a RTP packet with payload.
    1. Set the packet's RTP header, including header extensions, using the metadata.
-   1. In particular, if the SFrame frame marker bit is set, set the RTP header marker bit to the value of the second bit E of the descriptor.
+   1. In particular, set the RTP header marker bit as specified in {{rtp-header-usage}}: it is set to the value of the second bit E of the descriptor if the SFrame frame marker bit is set, and to 0 otherwise.
    1. Send the packet.
 
 SFrame packets can be generated either from RTP media packets or from media frames as defined by {{WebRTC_Encoded_Transform}}.
