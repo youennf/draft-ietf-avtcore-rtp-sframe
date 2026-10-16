@@ -222,7 +222,7 @@ This attribute is used at media level, it does not appear at session level.
 
 The presence of the "a=sframe" attribute in a media section indicates that the media carried by the RTP packets of the media section is encrypted with SFrame in both directions.
 An answerer that supports SFrame includes the attribute in its answer only if it was present in the offer.
-An answerer that requires SFrame can reject m-sections that do not have the "a=sframe" SDP attribute.
+An answerer that requires SFrame MUST reject m-sections that do not have the "a=sframe" SDP attribute.
 If the offer contains "a=sframe" and the answer does not, the offerer MUST NOT send media for that m-section and MUST NOT fall back to sending unencrypted RTP.
 The offerer MUST also discard any RTP received for that m-section and SHOULD close it in subsequent offers.
 If an m-section has the "a=sframe" SDP attribute in an offer, it MUST appear in any reoffer unless the m-section is closed.
