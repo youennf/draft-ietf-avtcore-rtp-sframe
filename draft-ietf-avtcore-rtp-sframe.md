@@ -220,12 +220,12 @@ When receiving a RTP SFrame packet, the following steps are done:
 SFrame packetization is indicated via a new "a=sframe" SDP attribute defined in this specification.
 This attribute is used at media level, it does not appear at session level.
 
-The presence of the "a=sframe" attribute in a media section (in either an offer or an answer) indicates that the
-endpoint is expecting to receive RTP packets encrypted with SFrame for that media section, as defined below.
-
-Once each peer has verified that the other party expects to receive SFrame RTP packets, senders are expected to send SFrame encrypted RTP packets.
-If one peer expects to use SFrame for a media section and identifies that the other peer does not support it, the peer
-is expected to stop the transceiver associated with the media section, which will generate a zero port for that m-section.
+The presence of the "a=sframe" attribute in a media section indicates that the media carried by the RTP packets of the media section is encrypted with SFrame in both directions.
+An answerer that supports SFrame includes the attribute in its answer only if it was present in the offer.
+An answerer that requires SFrame MUST reject m-sections that do not have the "a=sframe" SDP attribute.
+If the offer contains "a=sframe" and the answer does not, the offerer MUST NOT send media for that m-section and MUST NOT fall back to sending unencrypted RTP.
+The offerer MUST also discard any RTP received for that m-section and SHOULD close it in subsequent offers.
+If an m-section has the "a=sframe" SDP attribute in an offer, it MUST appear in any reoffer unless the m-section is closed.
 
 When SFrame is in use for that media section, it will apply to the relevant media encodings defined for that media section.
 This includes RTP payload types bound to media packetizers and media depacketizers as defined in {{!RFC7656}}, typically audio formats such as Opus and RTP video formats such as H264.
@@ -326,7 +326,7 @@ Usage Level: media
 
 Charset dependent: No
 
-Purpose: The presence of this attribute in the SDP indicates that the endpoint is capable of processing SFrame packets
+Purpose: The presence of this attribute in the SDP indicates that the media carried by the RTP packets of the m-section is encrypted by SFrame
 
 O/A procedures: SDP O/A procedures are defined in section 6
 
