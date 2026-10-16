@@ -252,12 +252,6 @@ For Redundant Audio Data, known as RED, as defined in {{!RFC2198}}, a RED packet
 If BUNDLE is in use and the "a=sframe" attribute is present for a media section but not for another media section of the same BUNDLE,
 payload types for media encodings that are relevant for SFrame MUST NOT be reused between the two media sections.
 
-Questions:
-
-1. Should we precise how RTX/FEC works with SFrame packetization? No impact AFAIK since RTX/FEC would work on packets (whether SFramed or not).
-2. Is RED current proposal (transmit SFrame ciphertext blocks) good enough? An alternative is to have SFrame being applied on the entire RED packet payload.
-3. Should we allow `a=sframe` at session level to mean that all media sections want sframe?
-
 Here is an example of SFrame being negotiated for audio (opus and CN) and for video (H264 and VP8):
 
 ~~~
