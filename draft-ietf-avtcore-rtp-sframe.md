@@ -130,6 +130,7 @@ The T bit of the SFrame payload descriptor MUST be 1 if the fragment comes from 
 All fragments of a SFrame frame MUST have the same T bit value.
 
 The 5 remaining bits of the SFrame payload descriptor are reserved for future use.
+Senders MUST set them to 0 and receivers MUST ignore them.
 
 The payload type (PT) identifies the format of the media encrypted with SFrame.
 
