@@ -209,8 +209,8 @@ When receiving a RTP SFrame packet, the following steps are done:
 1. Let the SFrame RTP metadata be computed from the RTP headers of the RTP packets of the list, in particular:
    1. The RTP metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.
    1. The RTP metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.
-1. Decrypt the SFrame payload to obtain the media decrypted data.
-1. If the frame RTp metadata payload origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame RTP metadata to the receiving pipeline.
+1. Decrypt the SFrame payload to obtain the media decrypted data. If decryption fails, abort these steps.
+1. If the frame RTP metadata payload origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame RTP metadata to the receiving pipeline.
 1. Otherwise, run the following sub-steps:
    1. Let depacketizer be a media-format-specific depacketizer selected from the frame payload type.
    1. Send the media decrypted data and SFrame RTP metadata to the depacketizer.
@@ -224,6 +224,9 @@ This metadata is unrelated to the RTP metadata used in the packetization algorit
 By default, the `metadata` input for the SFrame encryption and decryption operations is empty.
 RTP header fields and header extension values can be modified by RTP middleboxes suc as SFUs, and some are not identical across the RTP packets of a frame.
 Applications that want to use a non-empty SFrame metadata need to define how it is made available to both sender and receiver out of band of the RTP headers.
+
+Errors like inconsistent T bits, inconsistent payload types or decryption failures will make the depacketization fail and the corresponding frame to be discarded.
+The receiver SHOULD treat a discarded frame as a lost/corrupted frame and rely on its normal recovery mechanisms (e.g. PLI/FIR for video) even though no RTP packet was lost.
 
 # SFrame SDP negotiation
 
