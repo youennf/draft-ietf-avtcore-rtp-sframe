@@ -1046,11 +1046,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">RTP Payload Format for SFrame</td>
-<td class="right">April 2026</td>
+<td class="right">October 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Thatcher, et al.</td>
-<td class="center">Expires 5 October 2026</td>
+<td class="center">Expires 19 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-avtcore-rtp-sframe-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-04-03" class="published">3 April 2026</time>
+<time datetime="2026-10-16" class="published">16 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-10-05">5 October 2026</time></dd>
+<dd class="expires"><time datetime="2027-04-19">19 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1126,7 +1126,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 5 October 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 19 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1183,6 +1183,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-rtp-depacketization-of-sfra" class="internal xref">RTP depacketization of SFrame</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-sframe-metadata" class="internal xref">SFrame metadata</a></p>
 </li>
             </ul>
 </li>
@@ -1301,7 +1304,8 @@ This alternative is also compatible with <span>[<a href="#WebRTC_Encoded_Transfo
 The T bit of the SFrame payload descriptor MUST be 0 if the fragment comes from a raw format as defined by <span>[<a href="#WebRTC_Encoded_Transform" class="cite xref">WebRTC_Encoded_Transform</a>]</span>.
 The T bit of the SFrame payload descriptor MUST be 1 if the fragment comes from a packetized format.
 All fragments of a SFrame frame MUST have the same T bit value.<a href="#section-4-6" class="pilcrow">¶</a></p>
-<p id="section-4-7">The 5 remaining bits of the SFrame payload descriptor are reserved for future use.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-7">The 5 remaining bits of the SFrame payload descriptor are reserved for future use.
+Senders MUST set them to 0 and receivers MUST ignore them.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <p id="section-4-8">The payload type (PT) identifies the format of the media encrypted with SFrame.<a href="#section-4-8" class="pilcrow">¶</a></p>
 <p id="section-4-9">The SSRC, timestamp, marker bit, and CSRCs of the SFrame RTP packets MUST be the same
 as those of the output of the media-format-specific packetization.
@@ -1326,7 +1330,7 @@ if it is known that the omitted header extensions do not need to be duplicated o
             <p id="section-5.1-2.1.1">Let content be the SFrame frame payload to be sent.<a href="#section-5.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-2.2">
-            <p id="section-5.1-2.2.1">Let metadata be the SFrame frame metadata. It contains information such as payload type, timestamp, synchronization source, contributing sources, marker bit, header extensions, and payload origin.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-2.2.1">Let RTP metadata be the SFrame frame RTP metadata. It contains information such as payload type, timestamp, synchronization source, contributing sources, marker bit, header extensions, and payload origin.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-2.3">
             <p id="section-5.1-2.3.1">Fragment the content in a list of payloads so that RTP packets generated from them do not exceed the network maximum transmission unit size.<a href="#section-5.1-2.3.1" class="pilcrow">¶</a></p>
@@ -1353,7 +1357,7 @@ if it is known that the omitted header extensions do not need to be duplicated o
                 <p id="section-5.1-2.4.2.6.1">Let packet be a RTP packet with payload.<a href="#section-5.1-2.4.2.6.1" class="pilcrow">¶</a></p>
 </li>
               <li id="section-5.1-2.4.2.7">
-                <p id="section-5.1-2.4.2.7.1">Set the packet's RTP header, including header extensions, using the metadata.<a href="#section-5.1-2.4.2.7.1" class="pilcrow">¶</a></p>
+                <p id="section-5.1-2.4.2.7.1">Set the packet's RTP header, including header extensions, using the RTP metadata.<a href="#section-5.1-2.4.2.7.1" class="pilcrow">¶</a></p>
 </li>
               <li id="section-5.1-2.4.2.8">
                 <p id="section-5.1-2.4.2.8.1">In particular, if the SFrame frame marker bit is set, set the RTP header marker bit to the value of the second bit E of the descriptor.<a href="#section-5.1-2.4.2.8.1" class="pilcrow">¶</a></p>
@@ -1383,19 +1387,19 @@ The two kind of processing are presented below.<a href="#section-5.1-3" class="p
               <p id="section-5.1.1-2.3.1">Let payload be a SFrame ciphertext generated from the media frame data.<a href="#section-5.1.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.1.1-2.4">
-              <p id="section-5.1.1-2.4.1">Let metadata be a SFrame frame metadata.<a href="#section-5.1.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-5.1.1-2.4.1">Let RTP metadata be a SFrame frame RTP metadata.<a href="#section-5.1.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.1.1-2.5">
-              <p id="section-5.1.1-2.5.1">Set the SFrame metadata payload origin to raw.<a href="#section-5.1.1-2.5.1" class="pilcrow">¶</a></p>
+              <p id="section-5.1.1-2.5.1">Set the SFrame RTP metadata payload origin to raw.<a href="#section-5.1.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.1.1-2.6">
-              <p id="section-5.1.1-2.6.1">Set the SFrame metadata marker bit if the packet has its marker bit set.<a href="#section-5.1.1-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-5.1.1-2.6.1">Set the SFrame RTP metadata marker bit if the packet has its marker bit set.<a href="#section-5.1.1-2.6.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.1.1-2.7">
-              <p id="section-5.1.1-2.7.1">Set the SFrame metadata other fields (timestamp, payload type, RTP header extensions...) using the packet RTP header.<a href="#section-5.1.1-2.7.1" class="pilcrow">¶</a></p>
+              <p id="section-5.1.1-2.7.1">Set the SFrame RTP metadata other fields (timestamp, payload type, RTP header extensions...) using the packet RTP header.<a href="#section-5.1.1-2.7.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-5.1.1-2.8">
-              <p id="section-5.1.1-2.8.1">Send the SFrame frame generated from payload and metadata to the SFrame packetizer.<a href="#section-5.1.1-2.8.1" class="pilcrow">¶</a></p>
+              <p id="section-5.1.1-2.8.1">Send the SFrame frame generated from payload and RTP metadata to the SFrame packetizer.<a href="#section-5.1.1-2.8.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -1419,16 +1423,16 @@ to get a 1-1 match between the generated RTP packets and the SFrame encrypted se
                   <p id="section-5.1.2-2.2.2.1.1">Let payload be a SFrame ciphertext generated from the RTP packet payload.<a href="#section-5.1.2-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-5.1.2-2.2.2.2">
-                  <p id="section-5.1.2-2.2.2.2.1">Let metadata be a SFrame frame metadata.<a href="#section-5.1.2-2.2.2.2.1" class="pilcrow">¶</a></p>
+                  <p id="section-5.1.2-2.2.2.2.1">Let RTP metadata be a SFrame frame RTP metadata.<a href="#section-5.1.2-2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-5.1.2-2.2.2.3">
-                  <p id="section-5.1.2-2.2.2.3.1">Set the SFrame metadata content origin to packetized.<a href="#section-5.1.2-2.2.2.3.1" class="pilcrow">¶</a></p>
+                  <p id="section-5.1.2-2.2.2.3.1">Set the SFrame RTP metadata payload origin to packetized.<a href="#section-5.1.2-2.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-5.1.2-2.2.2.4">
-                  <p id="section-5.1.2-2.2.2.4.1">Set the SFrame metadata other fields using the packet RTP header, including the marker bit.<a href="#section-5.1.2-2.2.2.4.1" class="pilcrow">¶</a></p>
+                  <p id="section-5.1.2-2.2.2.4.1">Set the SFrame RTP metadata other fields using the packet RTP header, including the marker bit.<a href="#section-5.1.2-2.2.2.4.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-5.1.2-2.2.2.5">
-                  <p id="section-5.1.2-2.2.2.5.1">Send the SFrame frame generated from payload and metadata to the SFrame packetizer.<a href="#section-5.1.2-2.2.2.5.1" class="pilcrow">¶</a></p>
+                  <p id="section-5.1.2-2.2.2.5.1">Send the SFrame frame generated from payload and RTP metadata to the SFrame packetizer.<a href="#section-5.1.2-2.2.2.5.1" class="pilcrow">¶</a></p>
 </li>
               </ol>
 </li>
@@ -1483,37 +1487,51 @@ to get a 1-1 match between the generated RTP packets and the SFrame encrypted se
             <p id="section-5.2-2.9.1">Let the SFrame payload be the concatenation of the payloads of each RTP packet of the list.<a href="#section-5.2-2.9.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.2-2.10">
-            <p id="section-5.2-2.10.1">Let the SFrame metadata be computed from the RTP headers of the RTP packets of the list, in particular:<a href="#section-5.2-2.10.1" class="pilcrow">¶</a></p>
+            <p id="section-5.2-2.10.1">Let the SFrame RTP metadata be computed from the RTP headers of the RTP packets of the list, in particular:<a href="#section-5.2-2.10.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5.2-2.10.2">
 <li id="section-5.2-2.10.2.1">
-                <p id="section-5.2-2.10.2.1.1">The metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.<a href="#section-5.2-2.10.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-5.2-2.10.2.1.1">The RTP metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.<a href="#section-5.2-2.10.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li id="section-5.2-2.10.2.2">
-                <p id="section-5.2-2.10.2.2.1">The metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.<a href="#section-5.2-2.10.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-5.2-2.10.2.2.1">The RTP metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.<a href="#section-5.2-2.10.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ol>
 </li>
           <li id="section-5.2-2.11">
-            <p id="section-5.2-2.11.1">Decrypt the SFrame payload to obtain the media decrypted data.<a href="#section-5.2-2.11.1" class="pilcrow">¶</a></p>
+            <p id="section-5.2-2.11.1">Decrypt the SFrame payload to obtain the media decrypted data. If decryption fails, abort these steps.<a href="#section-5.2-2.11.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.2-2.12">
-            <p id="section-5.2-2.12.1">If the frame metadata content origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.<a href="#section-5.2-2.12.1" class="pilcrow">¶</a></p>
+            <p id="section-5.2-2.12.1">If the frame RTP metadata payload origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame RTP metadata to the receiving pipeline.<a href="#section-5.2-2.12.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.2-2.13">
             <p id="section-5.2-2.13.1">Otherwise, run the following sub-steps:<a href="#section-5.2-2.13.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5.2-2.13.2">
 <li id="section-5.2-2.13.2.1">
-                <p id="section-5.2-2.13.2.1.1">Let packetizer be a media-format-specific packetizer selected from the frame payload type.<a href="#section-5.2-2.13.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-5.2-2.13.2.1.1">Let depacketizer be a media-format-specific depacketizer selected from the frame payload type.<a href="#section-5.2-2.13.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li id="section-5.2-2.13.2.2">
-                <p id="section-5.2-2.13.2.2.1">Send the media decrypted data and SFrame metadata to the packetizer.<a href="#section-5.2-2.13.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-5.2-2.13.2.2.1">Send the media decrypted data and SFrame RTP metadata to the depacketizer.<a href="#section-5.2-2.13.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li id="section-5.2-2.13.2.3">
-                <p id="section-5.2-2.13.2.3.1">If the packetizer generates a media frame, send the media frame to the receiving pipeline.<a href="#section-5.2-2.13.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-5.2-2.13.2.3.1">If the depacketizer generates a media frame, send the media frame to the receiving pipeline.<a href="#section-5.2-2.13.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ol>
 </li>
         </ol>
+</section>
+</div>
+<div id="sframe-metadata">
+<section id="section-5.3">
+        <h3 id="name-sframe-metadata">
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-sframe-metadata" class="section-name selfRef">SFrame metadata</a>
+        </h3>
+<p id="section-5.3-1">The SFrame AEAD encryption and decryption operations of <span>[<a href="#RFC9605" class="cite xref">RFC9605</a>]</span> take a <code>metadata</code> input, which is authenticated as part of the AAD along with the SFrame header but is not transmitted in the SFrame ciphertext.
+This metadata is unrelated to the RTP metadata used in the packetization algorithms above.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">By default, the <code>metadata</code> input for the SFrame encryption and decryption operations is empty.
+RTP header fields and header extension values can be modified by RTP middleboxes suc as SFUs, and some are not identical across the RTP packets of a frame.
+Applications that want to use a non-empty SFrame metadata need to define how it is made available to both sender and receiver out of band of the RTP headers.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3-3">Errors like inconsistent T bits, inconsistent payload types or decryption failures will make the depacketization fail and the corresponding frame to be discarded.
+The receiver SHOULD treat a discarded frame as a lost/corrupted frame and rely on its normal recovery mechanisms (e.g. PLI/FIR for video) even though no RTP packet was lost.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1525,34 +1543,23 @@ to get a 1-1 match between the generated RTP packets and the SFrame encrypted se
       </h2>
 <p id="section-6-1">SFrame packetization is indicated via a new "a=sframe" SDP attribute defined in this specification.
 This attribute is used at media level, it does not appear at session level.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">The presence of the "a=sframe" attribute in a media section (in either an offer or an answer) indicates that the
-endpoint is expecting to receive RTP packets encrypted with SFrame for that media section, as defined below.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">Once each peer has verified that the other party expects to receive SFrame RTP packets, senders are expected to send SFrame encrypted RTP packets.
-If one peer expects to use SFrame for a media section and identifies that the other peer does not support it, the peer
-is expected to stop the transceiver associated with the media section, which will generate a zero port for that m-section.<a href="#section-6-3" class="pilcrow">¶</a></p>
-<p id="section-6-4">When SFrame is in use for that media section, it will apply to the relevant media encodings defined for that media section.
+<p id="section-6-2">The presence of the "a=sframe" attribute in a media section indicates that the media carried by the RTP packets of the media section is encrypted with SFrame in both directions.
+An answerer that supports SFrame includes the attribute in its answer only if it was present in the offer.
+An answerer that requires SFrame MUST reject m-sections that do not have the "a=sframe" SDP attribute.
+If the offer contains "a=sframe" and the answer does not, the offerer MUST NOT send media for that m-section and MUST NOT fall back to sending unencrypted RTP.
+The offerer MUST also discard any RTP received for that m-section and SHOULD close it in subsequent offers.
+If an m-section has the "a=sframe" SDP attribute in an offer, it MUST appear in any reoffer unless the m-section is closed.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">When SFrame is in use for that media section, it will apply to the relevant media encodings defined for that media section.
 This includes RTP payload types bound to media packetizers and media depacketizers as defined in <span>[<a href="#RFC7656" class="cite xref">RFC7656</a>]</span>, typically audio formats such as Opus and RTP video formats such as H264.
-This notably includes RTP payload types representing <span>[<a href="#WebRTC_Encoded_Transform" class="cite xref">WebRTC_Encoded_Transform</a>]</span> <a href="https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedvideoframe-data">encoded video frame formats</a> and <a href="https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedaudioframe-data">encoded audio frame formats</a>.<a href="#section-6-4" class="pilcrow">¶</a></p>
-<p id="section-6-5">This does not include RTP-Based Redundancy mechanisms as defined in <span>[<a href="#RFC7656" class="cite xref">RFC7656</a>]</span>.
+This notably includes RTP payload types representing <span>[<a href="#WebRTC_Encoded_Transform" class="cite xref">WebRTC_Encoded_Transform</a>]</span> <a href="https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedvideoframe-data">encoded video frame formats</a> and <a href="https://w3c.github.io/webrtc-encoded-transform/#dom-rtcencodedaudioframe-data">encoded audio frame formats</a>.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">This does not include RTP-Based Redundancy mechanisms as defined in <span>[<a href="#RFC7656" class="cite xref">RFC7656</a>]</span>.
 For instance, RTX defined in <span>[<a href="#RFC4588" class="cite xref">RFC4588</a>]</span> will retransmit SFrame-based packets.
 Forward error correction formats as defined in <span>[<a href="#RFC5109" class="cite xref">RFC5109</a>]</span> will protect the encrypted content.
-For Redundant Audio Data, known as RED, as defined in <span>[<a href="#RFC2198" class="cite xref">RFC2198</a>]</span>, a RED packetizer will take as input SFrame encrypted media data instead of unencrypted media data.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<p id="section-6-6">If BUNDLE is in use and the "a=sframe" attribute is present for a media section but not for another media section of the same BUNDLE,
-payload types for media encodings that are relevant for SFrame MUST NOT be reused between the two media sections.<a href="#section-6-6" class="pilcrow">¶</a></p>
-<p id="section-6-7">Questions:<a href="#section-6-7" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-6-8">
-<li id="section-6-8.1">
-          <p id="section-6-8.1.1">Should we precise how RTX/FEC works with SFrame packetization? No impact AFAIK since RTX/FEC would work on packets (whether SFramed or not).<a href="#section-6-8.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li id="section-6-8.2">
-          <p id="section-6-8.2.1">Is RED current proposal (transmit SFrame ciphertext blocks) good enough? An alternative is to have SFrame being applied on the entire RED packet payload.<a href="#section-6-8.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li id="section-6-8.3">
-          <p id="section-6-8.3.1">Should we allow <code>a=sframe</code> at session level to mean that all media sections want sframe?<a href="#section-6-8.3.1" class="pilcrow">¶</a></p>
-</li>
-      </ol>
-<p id="section-6-9">Here is an example of SFrame being negotiated for audio (opus and CN) and for video (H264 and VP8):<a href="#section-6-9" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-10">
+For Redundant Audio Data, known as RED, as defined in <span>[<a href="#RFC2198" class="cite xref">RFC2198</a>]</span>, a RED packetizer will take as input SFrame encrypted media data instead of unencrypted media data.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">If BUNDLE is in use and the "a=sframe" attribute is present for a media section but not for another media section of the same BUNDLE,
+payload types for media encodings that are relevant for SFrame MUST NOT be reused between the two media sections.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">Here is an example of SFrame being negotiated for audio (opus and CN) and for video (H264 and VP8):<a href="#section-6-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-7">
 <pre>
 m=audio 50000 RTP/SAVPF 10 11
 a=sframe
@@ -1563,7 +1570,7 @@ m=video 50002 RTP/SAVPF 100 101
 a=sframe
 a=rtpmap:100 H264/90000
 a=rtpmap:101 VP8/90000
-</pre><a href="#section-6-10" class="pilcrow">¶</a>
+</pre><a href="#section-6-7" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1643,7 +1650,7 @@ Specifically, it adds the SDP "a=sframe" attribute for use at the media level.<a
 <p id="section-10-7">Attribute value: N/A<a href="#section-10-7" class="pilcrow">¶</a></p>
 <p id="section-10-8">Usage Level: media<a href="#section-10-8" class="pilcrow">¶</a></p>
 <p id="section-10-9">Charset dependent: No<a href="#section-10-9" class="pilcrow">¶</a></p>
-<p id="section-10-10">Purpose: The presence of this attribute in the SDP indicates that the endpoint is capable of processing SFrame packets<a href="#section-10-10" class="pilcrow">¶</a></p>
+<p id="section-10-10">Purpose: The presence of this attribute in the SDP indicates that the media carried by the RTP packets of the m-section is encrypted by SFrame<a href="#section-10-10" class="pilcrow">¶</a></p>
 <p id="section-10-11">O/A procedures: SDP O/A procedures are defined in section 6<a href="#section-10-11" class="pilcrow">¶</a></p>
 <p id="section-10-12">Mux Category: NORMAL<a href="#section-10-12" class="pilcrow">¶</a></p>
 </section>
@@ -1710,7 +1717,7 @@ Specifically, it adds the SDP "a=sframe" attribute for use at the media level.<a
 <dl class="references">
 <dt id="TestVectors">[TestVectors]</dt>
       <dd>
-<span class="refTitle">"SFrame Per SSRC Key Derivation Test Vectors"</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe/blob/main/test-vectors/test-vectors-per-ssrc-key-derivation.json">https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe/blob/main/test-vectors/test-vectors-per-ssrc-key-derivation.json</a>&gt;</span>. </dd>
+<span class="refTitle">"SFrame Per SSRC Key Derivation Test Vectors"</span>, <time datetime="2026-10" class="refDate">October 2026</time>, <span>&lt;<a href="https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe/blob/main/test-vectors/test-vectors-per-ssrc-key-derivation.json">https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-rtp-sframe/blob/main/test-vectors/test-vectors-per-ssrc-key-derivation.json</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -1723,131 +1730,234 @@ Specifically, it adds the SDP "a=sframe" attribute for use at the media level.<a
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
       </h2>
 <p id="appendix-A-1">This section provides a set of test vectors that implementations can use to
-verify that they correctly implement SFrame per SSRC stream key derivation
-with registered SFrame cipher suites.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">All values are either numeric or byte strings.  Numeric values are represented
+verify that they correctly implement SFrame per SSRC stream key derivation,
+and ratcheting of the resulting per SSRC keys, with registered SFrame cipher
+suites.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">For each SSRC, <code>ssrc_key_a</code> is the initial key produced by the derivation in
+<a href="#sframe-sdp-rtp-key-management" class="auto internal xref">Section 7</a>.  <code>ssrc_key_a_1</code> and <code>ssrc_key_a_2</code> are the
+keys after the first and second ratchet steps described in
+<a href="#sframe-ratcheting-with-per-ssrc-keys" class="auto internal xref">Section 8</a>, corresponding to <code>ssrc_key_a[1]</code>
+and <code>ssrc_key_a[2]</code> in the key tree.  The values for <code>ssrc_key_b</code> follow the
+same pattern.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-3">All values are either numeric or byte strings.  Numeric values are represented
 as hex values, prefixed with <code>0x</code>.  Byte strings are represented in hex
-encoding.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
-<p id="appendix-A-3">Line breaks and whitespace within values are inserted to conform to the width
-requirements of the RFC format.  They should be removed before use.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
-<p id="appendix-A-4">These test vectors are also available in JSON format at <span>[<a href="#TestVectors" class="cite xref">TestVectors</a>]</span>.  In the
+encoding.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
+<p id="appendix-A-4">Line breaks and whitespace within values are inserted to conform to the width
+requirements of the RFC format.  They should be removed before use.<a href="#appendix-A-4" class="pilcrow">¶</a></p>
+<p id="appendix-A-5">These test vectors are also available in JSON format at <span>[<a href="#TestVectors" class="cite xref">TestVectors</a>]</span>.  In the
 JSON test vectors, numeric values are JSON numbers and byte string values are
-JSON strings containing the hex encoding of the byte strings.<a href="#appendix-A-4" class="pilcrow">¶</a></p>
-<div class="lang-test-vectors sourcecode" id="appendix-A-5">
+JSON strings containing the hex encoding of the byte strings.<a href="#appendix-A-5" class="pilcrow">¶</a></p>
+<div class="lang-test-vectors sourcecode" id="appendix-A-6">
 <pre>
 cipher_suite: 0x0001
 base_key: 000102030405060708090a0b0c0d0e0f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: f309f118aecdacfbc165cc080022b297
-              100bbb55e483b002d762000a0faa684d
-stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-              182b895ec8330d5cc6ec690704043b5f
-</pre><a href="#appendix-A-5" class="pilcrow">¶</a>
+ssrc_key_a: f309f118aecdacfbc165cc080022b297
+            100bbb55e483b002d762000a0faa684d
+ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+              2f4f2266bd66284490229540f93127ab
+ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+              389d697c74769fb2db911ea467f984dc
+ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+            182b895ec8330d5cc6ec690704043b5f
+ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+              774f6df78ce0b593b59f05f3d1f505dd
+ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+              721b21eda62bceaa8ec73e59926d25c4
+</pre><a href="#appendix-A-6" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-6">
+<div class="lang-test-vectors sourcecode" id="appendix-A-7">
 <pre>
 cipher_suite: 0x0002
 base_key: 000102030405060708090a0b0c0d0e0f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: f309f118aecdacfbc165cc080022b297
-              100bbb55e483b002d762000a0faa684d
-stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-              182b895ec8330d5cc6ec690704043b5f
-</pre><a href="#appendix-A-6" class="pilcrow">¶</a>
+ssrc_key_a: f309f118aecdacfbc165cc080022b297
+            100bbb55e483b002d762000a0faa684d
+ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+              2f4f2266bd66284490229540f93127ab
+ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+              389d697c74769fb2db911ea467f984dc
+ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+            182b895ec8330d5cc6ec690704043b5f
+ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+              774f6df78ce0b593b59f05f3d1f505dd
+ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+              721b21eda62bceaa8ec73e59926d25c4
+</pre><a href="#appendix-A-7" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-7">
+<div class="lang-test-vectors sourcecode" id="appendix-A-8">
 <pre>
 cipher_suite: 0x0003
 base_key: 000102030405060708090a0b0c0d0e0f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: f309f118aecdacfbc165cc080022b297
-              100bbb55e483b002d762000a0faa684d
-stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-              182b895ec8330d5cc6ec690704043b5f
-</pre><a href="#appendix-A-7" class="pilcrow">¶</a>
+ssrc_key_a: f309f118aecdacfbc165cc080022b297
+            100bbb55e483b002d762000a0faa684d
+ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+              2f4f2266bd66284490229540f93127ab
+ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+              389d697c74769fb2db911ea467f984dc
+ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+            182b895ec8330d5cc6ec690704043b5f
+ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+              774f6df78ce0b593b59f05f3d1f505dd
+ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+              721b21eda62bceaa8ec73e59926d25c4
+</pre><a href="#appendix-A-8" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-8">
+<div class="lang-test-vectors sourcecode" id="appendix-A-9">
 <pre>
 cipher_suite: 0x0004
 base_key: 000102030405060708090a0b0c0d0e0f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: f309f118aecdacfbc165cc080022b297
-              100bbb55e483b002d762000a0faa684d
-stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-              182b895ec8330d5cc6ec690704043b5f
-</pre><a href="#appendix-A-8" class="pilcrow">¶</a>
+ssrc_key_a: f309f118aecdacfbc165cc080022b297
+            100bbb55e483b002d762000a0faa684d
+ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+              2f4f2266bd66284490229540f93127ab
+ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+              389d697c74769fb2db911ea467f984dc
+ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+            182b895ec8330d5cc6ec690704043b5f
+ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+              774f6df78ce0b593b59f05f3d1f505dd
+ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+              721b21eda62bceaa8ec73e59926d25c4
+</pre><a href="#appendix-A-9" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-9">
+<div class="lang-test-vectors sourcecode" id="appendix-A-10">
 <pre>
 cipher_suite: 0x0005
 base_key: 000102030405060708090a0b0c0d0e0f
           101112131415161718191a1b1c1d1e1f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-              75a3488dbd4d9dd3553a01b39df76bc4
-              3a5a0b130159edd90353b09c810e849d
-              b7398182ac7c1dea072a2c1b6bac7dda
-stream_key_b: f7891c6b18d88a93ba7638875b87146d
-              f4cb9693ca3837b480e9221539e86c1c
-              98391cb1273423b33f94abe7f67c1070
-              997a588084a54391ebda18b3d6ff92f1
-</pre><a href="#appendix-A-9" class="pilcrow">¶</a>
+ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+            75a3488dbd4d9dd3553a01b39df76bc4
+            3a5a0b130159edd90353b09c810e849d
+            b7398182ac7c1dea072a2c1b6bac7dda
+ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+              953e8aa73e9fac510e33113be7abb3a1
+              230daf15bc5c5247ffeab88f745ca59e
+              ba608e832e8e9b5a50cd05c5b866e604
+ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+              0fe0eb84a598d06174b24e8ab2ca73a8
+              1dedb3158a6ea9a734e5544769524766
+              325a4248e585c8231a323f2093afc118
+ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+            f4cb9693ca3837b480e9221539e86c1c
+            98391cb1273423b33f94abe7f67c1070
+            997a588084a54391ebda18b3d6ff92f1
+ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+              8d2512ba73b89bbb883a81d6aceab6bf
+              69e24064ae2758803ac4f2ff0aab2bd8
+              cf1b4eab1e608892e816e4b4d6374b71
+ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+              214c81d571c182b7d83b480364e86c9c
+              d99bff7af9e1abc9e6ef772460835aa4
+              20b30d9329b9f686558e6e601eb4615c
+</pre><a href="#appendix-A-10" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-10">
+<div class="lang-test-vectors sourcecode" id="appendix-A-11">
 <pre>
 cipher_suite: 0x0006
 base_key: 000102030405060708090a0b0c0d0e0f
           101112131415161718191a1b1c1d1e1f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-              75a3488dbd4d9dd3553a01b39df76bc4
-              3a5a0b130159edd90353b09c810e849d
-              b7398182ac7c1dea072a2c1b6bac7dda
-stream_key_b: f7891c6b18d88a93ba7638875b87146d
-              f4cb9693ca3837b480e9221539e86c1c
-              98391cb1273423b33f94abe7f67c1070
-              997a588084a54391ebda18b3d6ff92f1
-</pre><a href="#appendix-A-10" class="pilcrow">¶</a>
+ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+            75a3488dbd4d9dd3553a01b39df76bc4
+            3a5a0b130159edd90353b09c810e849d
+            b7398182ac7c1dea072a2c1b6bac7dda
+ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+              953e8aa73e9fac510e33113be7abb3a1
+              230daf15bc5c5247ffeab88f745ca59e
+              ba608e832e8e9b5a50cd05c5b866e604
+ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+              0fe0eb84a598d06174b24e8ab2ca73a8
+              1dedb3158a6ea9a734e5544769524766
+              325a4248e585c8231a323f2093afc118
+ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+            f4cb9693ca3837b480e9221539e86c1c
+            98391cb1273423b33f94abe7f67c1070
+            997a588084a54391ebda18b3d6ff92f1
+ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+              8d2512ba73b89bbb883a81d6aceab6bf
+              69e24064ae2758803ac4f2ff0aab2bd8
+              cf1b4eab1e608892e816e4b4d6374b71
+ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+              214c81d571c182b7d83b480364e86c9c
+              d99bff7af9e1abc9e6ef772460835aa4
+              20b30d9329b9f686558e6e601eb4615c
+</pre><a href="#appendix-A-11" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-11">
+<div class="lang-test-vectors sourcecode" id="appendix-A-12">
 <pre>
 cipher_suite: 0x0007
 base_key: 000102030405060708090a0b0c0d0e0f
           101112131415161718191a1b1c1d1e1f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-              75a3488dbd4d9dd3553a01b39df76bc4
-              3a5a0b130159edd90353b09c810e849d
-              b7398182ac7c1dea072a2c1b6bac7dda
-stream_key_b: f7891c6b18d88a93ba7638875b87146d
-              f4cb9693ca3837b480e9221539e86c1c
-              98391cb1273423b33f94abe7f67c1070
-              997a588084a54391ebda18b3d6ff92f1
-</pre><a href="#appendix-A-11" class="pilcrow">¶</a>
+ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+            75a3488dbd4d9dd3553a01b39df76bc4
+            3a5a0b130159edd90353b09c810e849d
+            b7398182ac7c1dea072a2c1b6bac7dda
+ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+              953e8aa73e9fac510e33113be7abb3a1
+              230daf15bc5c5247ffeab88f745ca59e
+              ba608e832e8e9b5a50cd05c5b866e604
+ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+              0fe0eb84a598d06174b24e8ab2ca73a8
+              1dedb3158a6ea9a734e5544769524766
+              325a4248e585c8231a323f2093afc118
+ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+            f4cb9693ca3837b480e9221539e86c1c
+            98391cb1273423b33f94abe7f67c1070
+            997a588084a54391ebda18b3d6ff92f1
+ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+              8d2512ba73b89bbb883a81d6aceab6bf
+              69e24064ae2758803ac4f2ff0aab2bd8
+              cf1b4eab1e608892e816e4b4d6374b71
+ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+              214c81d571c182b7d83b480364e86c9c
+              d99bff7af9e1abc9e6ef772460835aa4
+              20b30d9329b9f686558e6e601eb4615c
+</pre><a href="#appendix-A-12" class="pilcrow">¶</a>
 </div>
-<div class="lang-test-vectors sourcecode" id="appendix-A-12">
+<div class="lang-test-vectors sourcecode" id="appendix-A-13">
 <pre>
 cipher_suite: 0x0008
 base_key: 000102030405060708090a0b0c0d0e0f
           101112131415161718191a1b1c1d1e1f
 ssrc_a: 0x12345678
 ssrc_b: 0x98765432
-stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-              75a3488dbd4d9dd3553a01b39df76bc4
-              3a5a0b130159edd90353b09c810e849d
-              b7398182ac7c1dea072a2c1b6bac7dda
-stream_key_b: f7891c6b18d88a93ba7638875b87146d
-              f4cb9693ca3837b480e9221539e86c1c
-              98391cb1273423b33f94abe7f67c1070
-              997a588084a54391ebda18b3d6ff92f1
-</pre><a href="#appendix-A-12" class="pilcrow">¶</a>
+ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+            75a3488dbd4d9dd3553a01b39df76bc4
+            3a5a0b130159edd90353b09c810e849d
+            b7398182ac7c1dea072a2c1b6bac7dda
+ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+              953e8aa73e9fac510e33113be7abb3a1
+              230daf15bc5c5247ffeab88f745ca59e
+              ba608e832e8e9b5a50cd05c5b866e604
+ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+              0fe0eb84a598d06174b24e8ab2ca73a8
+              1dedb3158a6ea9a734e5544769524766
+              325a4248e585c8231a323f2093afc118
+ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+            f4cb9693ca3837b480e9221539e86c1c
+            98391cb1273423b33f94abe7f67c1070
+            997a588084a54391ebda18b3d6ff92f1
+ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+              8d2512ba73b89bbb883a81d6aceab6bf
+              69e24064ae2758803ac4f2ff0aab2bd8
+              cf1b4eab1e608892e816e4b4d6374b71
+ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+              214c81d571c182b7d83b480364e86c9c
+              d99bff7af9e1abc9e6ef772460835aa4
+              20b30d9329b9f686558e6e601eb4615c
+</pre><a href="#appendix-A-13" class="pilcrow">¶</a>
 </div>
 </section>
 </div>

@@ -5,9 +5,9 @@
 Audio/Video Transport Core Maintenance                       P. Thatcher
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                               Y. Fablet
-Expires: 5 October 2026                                     A. Rosenberg
+Expires: 19 April 2027                                      A. Rosenberg
                                                                    Apple
-                                                            3 April 2026
+                                                         16 October 2026
 
 
                      RTP Payload Format for SFrame
@@ -50,7 +50,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 October 2026.
+   This Internet-Draft will expire on 19 April 2027.
 
 Copyright Notice
 
@@ -77,6 +77,7 @@ Table of Contents
        5.1.1.  Per-frame SFrame sending
        5.1.2.  Per-packet SFrame sending
      5.2.  RTP depacketization of SFrame
+     5.3.  SFrame metadata
    6.  SFrame SDP negotiation
    7.  SFrame SDP RTP Key Management
    8.  SFrame Ratcheting with per SSRC keys
@@ -173,7 +174,8 @@ Table of Contents
    value.
 
    The 5 remaining bits of the SFrame payload descriptor are reserved
-   for future use.
+   for future use.  Senders MUST set them to 0 and receivers MUST ignore
+   them.
 
    The payload type (PT) identifies the format of the media encrypted
    with SFrame.
@@ -194,7 +196,7 @@ Table of Contents
 
    1.  Let content be the SFrame frame payload to be sent.
 
-   2.  Let metadata be the SFrame frame metadata.  It contains
+   2.  Let RTP metadata be the SFrame frame RTP metadata.  It contains
        information such as payload type, timestamp, synchronization
        source, contributing sources, marker bit, header extensions, and
        payload origin.
@@ -222,7 +224,7 @@ Table of Contents
        6.  Let packet be a RTP packet with payload.
 
        7.  Set the packet's RTP header, including header extensions,
-           using the metadata.
+           using the RTP metadata.
 
        8.  In particular, if the SFrame frame marker bit is set, set the
            RTP header marker bit to the value of the second bit E of the
@@ -247,18 +249,18 @@ Table of Contents
    3.  Let payload be a SFrame ciphertext generated from the media frame
        data.
 
-   4.  Let metadata be a SFrame frame metadata.
+   4.  Let RTP metadata be a SFrame frame RTP metadata.
 
-   5.  Set the SFrame metadata payload origin to raw.
+   5.  Set the SFrame RTP metadata payload origin to raw.
 
-   6.  Set the SFrame metadata marker bit if the packet has its marker
-       bit set.
+   6.  Set the SFrame RTP metadata marker bit if the packet has its
+       marker bit set.
 
-   7.  Set the SFrame metadata other fields (timestamp, payload type,
-       RTP header extensions...) using the packet RTP header.
+   7.  Set the SFrame RTP metadata other fields (timestamp, payload
+       type, RTP header extensions...) using the packet RTP header.
 
-   8.  Send the SFrame frame generated from payload and metadata to the
-       SFrame packetizer.
+   8.  Send the SFrame frame generated from payload and RTP metadata to
+       the SFrame packetizer.
 
 5.1.2.  Per-packet SFrame sending
 
@@ -277,15 +279,15 @@ Table of Contents
        1.  Let payload be a SFrame ciphertext generated from the RTP
            packet payload.
 
-       2.  Let metadata be a SFrame frame metadata.
+       2.  Let RTP metadata be a SFrame frame RTP metadata.
 
-       3.  Set the SFrame metadata content origin to packetized.
+       3.  Set the SFrame RTP metadata payload origin to packetized.
 
-       4.  Set the SFrame metadata other fields using the packet RTP
+       4.  Set the SFrame RTP metadata other fields using the packet RTP
            header, including the marker bit.
 
-       5.  Send the SFrame frame generated from payload and metadata to
-           the SFrame packetizer.
+       5.  Send the SFrame frame generated from payload and RTP metadata
+           to the SFrame packetizer.
 
 5.2.  RTP depacketization of SFrame
 
@@ -321,32 +323,56 @@ Table of Contents
    9.   Let the SFrame payload be the concatenation of the payloads of
         each RTP packet of the list.
 
-   10.  Let the SFrame metadata be computed from the RTP headers of the
-        RTP packets of the list, in particular:
+   10.  Let the SFrame RTP metadata be computed from the RTP headers of
+        the RTP packets of the list, in particular:
 
-        1.  The metadata's marker bit is set if the marker bit of the
-            last RTP packet of the list is set.
+        1.  The RTP metadata's marker bit is set if the marker bit of
+            the last RTP packet of the list is set.
 
-        2.  The metadata's payload origin is packetized if the T bit
+        2.  The RTP metadata's payload origin is packetized if the T bit
             value is 1 and raw otherwise.
 
    11.  Decrypt the SFrame payload to obtain the media decrypted data.
+        If decryption fails, abort these steps.
 
-   12.  If the frame metadata content origin is raw, aka the T bits of
-        each RTP packet of the list are 0, send the media frame created
-        from the media decrypted data and SFrame metadata to the
-        receiving pipeline.
+   12.  If the frame RTP metadata payload origin is raw, aka the T bits
+        of each RTP packet of the list are 0, send the media frame
+        created from the media decrypted data and SFrame RTP metadata to
+        the receiving pipeline.
 
    13.  Otherwise, run the following sub-steps:
 
-        1.  Let packetizer be a media-format-specific packetizer
+        1.  Let depacketizer be a media-format-specific depacketizer
             selected from the frame payload type.
 
-        2.  Send the media decrypted data and SFrame metadata to the
-            packetizer.
+        2.  Send the media decrypted data and SFrame RTP metadata to the
+            depacketizer.
 
-        3.  If the packetizer generates a media frame, send the media
+        3.  If the depacketizer generates a media frame, send the media
             frame to the receiving pipeline.
+
+5.3.  SFrame metadata
+
+   The SFrame AEAD encryption and decryption operations of [RFC9605]
+   take a metadata input, which is authenticated as part of the AAD
+   along with the SFrame header but is not transmitted in the SFrame
+   ciphertext.  This metadata is unrelated to the RTP metadata used in
+   the packetization algorithms above.
+
+   By default, the metadata input for the SFrame encryption and
+   decryption operations is empty.  RTP header fields and header
+   extension values can be modified by RTP middleboxes suc as SFUs, and
+   some are not identical across the RTP packets of a frame.
+   Applications that want to use a non-empty SFrame metadata need to
+   define how it is made available to both sender and receiver out of
+   band of the RTP headers.
+
+   Errors like inconsistent T bits, inconsistent payload types or
+   decryption failures will make the depacketization fail and the
+   corresponding frame to be discarded.  The receiver SHOULD treat a
+   discarded frame as a lost/corrupted frame and rely on its normal
+   recovery mechanisms (e.g. PLI/FIR for video) even though no RTP
+   packet was lost.
 
 6.  SFrame SDP negotiation
 
@@ -354,17 +380,18 @@ Table of Contents
    defined in this specification.  This attribute is used at media
    level, it does not appear at session level.
 
-   The presence of the "a=sframe" attribute in a media section (in
-   either an offer or an answer) indicates that the endpoint is
-   expecting to receive RTP packets encrypted with SFrame for that media
-   section, as defined below.
-
-   Once each peer has verified that the other party expects to receive
-   SFrame RTP packets, senders are expected to send SFrame encrypted RTP
-   packets.  If one peer expects to use SFrame for a media section and
-   identifies that the other peer does not support it, the peer is
-   expected to stop the transceiver associated with the media section,
-   which will generate a zero port for that m-section.
+   The presence of the "a=sframe" attribute in a media section indicates
+   that the media carried by the RTP packets of the media section is
+   encrypted with SFrame in both directions.  An answerer that supports
+   SFrame includes the attribute in its answer only if it was present in
+   the offer.  An answerer that requires SFrame MUST reject m-sections
+   that do not have the "a=sframe" SDP attribute.  If the offer contains
+   "a=sframe" and the answer does not, the offerer MUST NOT send media
+   for that m-section and MUST NOT fall back to sending unencrypted RTP.
+   The offerer MUST also discard any RTP received for that m-section and
+   SHOULD close it in subsequent offers.  If an m-section has the
+   "a=sframe" SDP attribute in an offer, it MUST appear in any reoffer
+   unless the m-section is closed.
 
    When SFrame is in use for that media section, it will apply to the
    relevant media encodings defined for that media section.  This
@@ -389,19 +416,6 @@ Table of Contents
    media section but not for another media section of the same BUNDLE,
    payload types for media encodings that are relevant for SFrame MUST
    NOT be reused between the two media sections.
-
-   Questions:
-
-   1.  Should we precise how RTX/FEC works with SFrame packetization?
-       No impact AFAIK since RTX/FEC would work on packets (whether
-       SFramed or not).
-
-   2.  Is RED current proposal (transmit SFrame ciphertext blocks) good
-       enough?  An alternative is to have SFrame being applied on the
-       entire RED packet payload.
-
-   3.  Should we allow a=sframe at session level to mean that all media
-       sections want sframe?
 
    Here is an example of SFrame being negotiated for audio (opus and CN)
    and for video (H264 and VP8):
@@ -498,7 +512,8 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    Charset dependent: No
 
    Purpose: The presence of this attribute in the SDP indicates that the
-   endpoint is capable of processing SFrame packets
+   media carried by the RTP packets of the m-section is encrypted by
+   SFrame
 
    O/A procedures: SDP O/A procedures are defined in section 6
 
@@ -561,16 +576,23 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
 11.2.  Informative References
 
    [TestVectors]
-              "SFrame Per SSRC Key Derivation Test Vectors", March 2026,
-              <https://github.com/ietf-wg-avtcore/draft-ietf-avtcore-
-              rtp-sframe/blob/main/test-vectors/test-vectors-per-ssrc-
-              key-derivation.json>.
+              "SFrame Per SSRC Key Derivation Test Vectors", October
+              2026, <https://github.com/ietf-wg-avtcore/draft-ietf-
+              avtcore-rtp-sframe/blob/main/test-vectors/test-vectors-
+              per-ssrc-key-derivation.json>.
 
 Appendix A.  Test Vectors
 
    This section provides a set of test vectors that implementations can
    use to verify that they correctly implement SFrame per SSRC stream
-   key derivation with registered SFrame cipher suites.
+   key derivation, and ratcheting of the resulting per SSRC keys, with
+   registered SFrame cipher suites.
+
+   For each SSRC, ssrc_key_a is the initial key produced by the
+   derivation in Section 7.  ssrc_key_a_1 and ssrc_key_a_2 are the keys
+   after the first and second ratchet steps described in Section 8,
+   corresponding to ssrc_key_a[1] and ssrc_key_a[2] in the key tree.
+   The values for ssrc_key_b follow the same pattern.
 
    All values are either numeric or byte strings.  Numeric values are
    represented as hex values, prefixed with 0x.  Byte strings are
@@ -589,93 +611,189 @@ Appendix A.  Test Vectors
    base_key: 000102030405060708090a0b0c0d0e0f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: f309f118aecdacfbc165cc080022b297
-                 100bbb55e483b002d762000a0faa684d
-   stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-                 182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_a: f309f118aecdacfbc165cc080022b297
+               100bbb55e483b002d762000a0faa684d
+   ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+                 2f4f2266bd66284490229540f93127ab
+   ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+                 389d697c74769fb2db911ea467f984dc
+   ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+               182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+                 774f6df78ce0b593b59f05f3d1f505dd
+   ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+                 721b21eda62bceaa8ec73e59926d25c4
 
    cipher_suite: 0x0002
    base_key: 000102030405060708090a0b0c0d0e0f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: f309f118aecdacfbc165cc080022b297
-                 100bbb55e483b002d762000a0faa684d
-   stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-                 182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_a: f309f118aecdacfbc165cc080022b297
+               100bbb55e483b002d762000a0faa684d
+   ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+                 2f4f2266bd66284490229540f93127ab
+   ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+                 389d697c74769fb2db911ea467f984dc
+   ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+               182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+                 774f6df78ce0b593b59f05f3d1f505dd
+   ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+                 721b21eda62bceaa8ec73e59926d25c4
 
    cipher_suite: 0x0003
    base_key: 000102030405060708090a0b0c0d0e0f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: f309f118aecdacfbc165cc080022b297
-                 100bbb55e483b002d762000a0faa684d
-   stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-                 182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_a: f309f118aecdacfbc165cc080022b297
+               100bbb55e483b002d762000a0faa684d
+   ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+                 2f4f2266bd66284490229540f93127ab
+   ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+                 389d697c74769fb2db911ea467f984dc
+   ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+               182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+                 774f6df78ce0b593b59f05f3d1f505dd
+   ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+                 721b21eda62bceaa8ec73e59926d25c4
 
    cipher_suite: 0x0004
    base_key: 000102030405060708090a0b0c0d0e0f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: f309f118aecdacfbc165cc080022b297
-                 100bbb55e483b002d762000a0faa684d
-   stream_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
-                 182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_a: f309f118aecdacfbc165cc080022b297
+               100bbb55e483b002d762000a0faa684d
+   ssrc_key_a_1: a8c48a47a6536eda200b4e94e8eaa660
+                 2f4f2266bd66284490229540f93127ab
+   ssrc_key_a_2: 1141095c432877af08c314e0e2936ce4
+                 389d697c74769fb2db911ea467f984dc
+   ssrc_key_b: 06e5d1b8c6e01f10b592bd2e13ff4b37
+               182b895ec8330d5cc6ec690704043b5f
+   ssrc_key_b_1: 7aa3bf333dde545fe56daaf2449fbff1
+                 774f6df78ce0b593b59f05f3d1f505dd
+   ssrc_key_b_2: 4aa1c3f077b45d4d76cb470690529534
+                 721b21eda62bceaa8ec73e59926d25c4
 
    cipher_suite: 0x0005
    base_key: 000102030405060708090a0b0c0d0e0f
              101112131415161718191a1b1c1d1e1f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-                 75a3488dbd4d9dd3553a01b39df76bc4
-                 3a5a0b130159edd90353b09c810e849d
-                 b7398182ac7c1dea072a2c1b6bac7dda
-   stream_key_b: f7891c6b18d88a93ba7638875b87146d
-                 f4cb9693ca3837b480e9221539e86c1c
-                 98391cb1273423b33f94abe7f67c1070
-                 997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+               75a3488dbd4d9dd3553a01b39df76bc4
+               3a5a0b130159edd90353b09c810e849d
+               b7398182ac7c1dea072a2c1b6bac7dda
+   ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+                 953e8aa73e9fac510e33113be7abb3a1
+                 230daf15bc5c5247ffeab88f745ca59e
+                 ba608e832e8e9b5a50cd05c5b866e604
+   ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+                 0fe0eb84a598d06174b24e8ab2ca73a8
+                 1dedb3158a6ea9a734e5544769524766
+                 325a4248e585c8231a323f2093afc118
+   ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+               f4cb9693ca3837b480e9221539e86c1c
+               98391cb1273423b33f94abe7f67c1070
+               997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+                 8d2512ba73b89bbb883a81d6aceab6bf
+                 69e24064ae2758803ac4f2ff0aab2bd8
+                 cf1b4eab1e608892e816e4b4d6374b71
+   ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+                 214c81d571c182b7d83b480364e86c9c
+                 d99bff7af9e1abc9e6ef772460835aa4
+                 20b30d9329b9f686558e6e601eb4615c
 
    cipher_suite: 0x0006
    base_key: 000102030405060708090a0b0c0d0e0f
              101112131415161718191a1b1c1d1e1f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-                 75a3488dbd4d9dd3553a01b39df76bc4
-                 3a5a0b130159edd90353b09c810e849d
-                 b7398182ac7c1dea072a2c1b6bac7dda
-   stream_key_b: f7891c6b18d88a93ba7638875b87146d
-                 f4cb9693ca3837b480e9221539e86c1c
-                 98391cb1273423b33f94abe7f67c1070
-                 997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+               75a3488dbd4d9dd3553a01b39df76bc4
+               3a5a0b130159edd90353b09c810e849d
+               b7398182ac7c1dea072a2c1b6bac7dda
+   ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+                 953e8aa73e9fac510e33113be7abb3a1
+                 230daf15bc5c5247ffeab88f745ca59e
+                 ba608e832e8e9b5a50cd05c5b866e604
+   ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+                 0fe0eb84a598d06174b24e8ab2ca73a8
+                 1dedb3158a6ea9a734e5544769524766
+                 325a4248e585c8231a323f2093afc118
+   ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+               f4cb9693ca3837b480e9221539e86c1c
+               98391cb1273423b33f94abe7f67c1070
+               997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+                 8d2512ba73b89bbb883a81d6aceab6bf
+                 69e24064ae2758803ac4f2ff0aab2bd8
+                 cf1b4eab1e608892e816e4b4d6374b71
+   ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+                 214c81d571c182b7d83b480364e86c9c
+                 d99bff7af9e1abc9e6ef772460835aa4
+                 20b30d9329b9f686558e6e601eb4615c
 
    cipher_suite: 0x0007
    base_key: 000102030405060708090a0b0c0d0e0f
              101112131415161718191a1b1c1d1e1f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-                 75a3488dbd4d9dd3553a01b39df76bc4
-                 3a5a0b130159edd90353b09c810e849d
-                 b7398182ac7c1dea072a2c1b6bac7dda
-   stream_key_b: f7891c6b18d88a93ba7638875b87146d
-                 f4cb9693ca3837b480e9221539e86c1c
-                 98391cb1273423b33f94abe7f67c1070
-                 997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+               75a3488dbd4d9dd3553a01b39df76bc4
+               3a5a0b130159edd90353b09c810e849d
+               b7398182ac7c1dea072a2c1b6bac7dda
+   ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+                 953e8aa73e9fac510e33113be7abb3a1
+                 230daf15bc5c5247ffeab88f745ca59e
+                 ba608e832e8e9b5a50cd05c5b866e604
+   ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+                 0fe0eb84a598d06174b24e8ab2ca73a8
+                 1dedb3158a6ea9a734e5544769524766
+                 325a4248e585c8231a323f2093afc118
+   ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+               f4cb9693ca3837b480e9221539e86c1c
+               98391cb1273423b33f94abe7f67c1070
+               997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+                 8d2512ba73b89bbb883a81d6aceab6bf
+                 69e24064ae2758803ac4f2ff0aab2bd8
+                 cf1b4eab1e608892e816e4b4d6374b71
+   ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+                 214c81d571c182b7d83b480364e86c9c
+                 d99bff7af9e1abc9e6ef772460835aa4
+                 20b30d9329b9f686558e6e601eb4615c
 
    cipher_suite: 0x0008
    base_key: 000102030405060708090a0b0c0d0e0f
              101112131415161718191a1b1c1d1e1f
    ssrc_a: 0x12345678
    ssrc_b: 0x98765432
-   stream_key_a: 4715e2a3e3ecb408c83135a30b8e660c
-                 75a3488dbd4d9dd3553a01b39df76bc4
-                 3a5a0b130159edd90353b09c810e849d
-                 b7398182ac7c1dea072a2c1b6bac7dda
-   stream_key_b: f7891c6b18d88a93ba7638875b87146d
-                 f4cb9693ca3837b480e9221539e86c1c
-                 98391cb1273423b33f94abe7f67c1070
-                 997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_a: 4715e2a3e3ecb408c83135a30b8e660c
+               75a3488dbd4d9dd3553a01b39df76bc4
+               3a5a0b130159edd90353b09c810e849d
+               b7398182ac7c1dea072a2c1b6bac7dda
+   ssrc_key_a_1: 9f0f48590c721b61733d1021212d6b92
+                 953e8aa73e9fac510e33113be7abb3a1
+                 230daf15bc5c5247ffeab88f745ca59e
+                 ba608e832e8e9b5a50cd05c5b866e604
+   ssrc_key_a_2: b10d573c2a0447596d8a162093d7c0aa
+                 0fe0eb84a598d06174b24e8ab2ca73a8
+                 1dedb3158a6ea9a734e5544769524766
+                 325a4248e585c8231a323f2093afc118
+   ssrc_key_b: f7891c6b18d88a93ba7638875b87146d
+               f4cb9693ca3837b480e9221539e86c1c
+               98391cb1273423b33f94abe7f67c1070
+               997a588084a54391ebda18b3d6ff92f1
+   ssrc_key_b_1: 686debc361271a29bb6e908ca4cbae6a
+                 8d2512ba73b89bbb883a81d6aceab6bf
+                 69e24064ae2758803ac4f2ff0aab2bd8
+                 cf1b4eab1e608892e816e4b4d6374b71
+   ssrc_key_b_2: ab9a74c7040713e8d1c3aa4ab5c6b22e
+                 214c81d571c182b7d83b480364e86c9c
+                 d99bff7af9e1abc9e6ef772460835aa4
+                 20b30d9329b9f686558e6e601eb4615c
 
 Authors' Addresses
 
