@@ -76,14 +76,14 @@ when, and only when, they appear in all capitals, as shown here.
 # SFrame format
 
 An SFrame ciphertext comprises a header and encrypted data.
-The SFrame header has a size varying between 1 to 17 bytes.
+The SFrame header has a size varying between 1 and 17 bytes.
 The encrypted data can be of arbitrary length and is larger than the unencrypted data by a fixed overhead that depends on the encryption algorithm.
 The overhead can be up to 16 bytes.
 
-An SFrame ciphertext having an arbitrary long length, an application may decide to partition the data encrypted with SFrame
+As an SFrame ciphertext can be arbitrarily long, an application may decide to partition the data encrypted with SFrame
 into pieces small enough that the SFrame ciphertext fits in a single RTP packet.
 We call this per-packet SFrame.
-This has the advantage of allowing to decrypt the content as soon as received.
+This has the advantage of allowing the content to be decrypted as soon as it is received.
 
 An alternative is to encrypt the data, a media frame typically, and send the SFrame ciphertext over several RTP packets.
 We call this per-frame SFrame.
@@ -124,10 +124,10 @@ The S bit of the SFrame payload descriptor MUST be 0 for all fragments except fo
 
 The E bit of the SFrame payload descriptor MUST be 0 for all fragments except for the last one of the SFrame frame.
 
-A SFrame frame is protecting media content that can be either in a packetized format or in a raw format as defined by {{WebRTC_Encoded_Transform}}.
+An SFrame frame is protecting media content that can be either in a packetized format or in a raw format as defined by {{WebRTC_Encoded_Transform}}.
 The T bit of the SFrame payload descriptor MUST be 0 if the fragment comes from a raw format as defined by {{WebRTC_Encoded_Transform}}.
 The T bit of the SFrame payload descriptor MUST be 1 if the fragment comes from a packetized format.
-All fragments of a SFrame frame MUST have the same T bit value.
+All fragments of an SFrame frame MUST have the same T bit value.
 
 The 5 remaining bits of the SFrame payload descriptor are reserved for future use.
 Senders MUST set them to 0 and receivers MUST ignore them.
@@ -150,27 +150,27 @@ For a given SFrame frame to be sent, the following steps are done:
 1. Let RTP metadata be the SFrame frame RTP metadata. It contains information such as payload type, timestamp, synchronization source, contributing sources, marker bit, header extensions, and payload origin.
 1. Fragment the content in a list of payloads so that RTP packets generated from them do not exceed the network maximum transmission unit size.
 1. For each payload in the list, run the following steps:
-   1. Let descriptor be a SFrame payload descriptor, initialized to a zero byte.
+   1. Let descriptor be an SFrame payload descriptor, initialized to a zero byte.
    1. Set the first bit S of the descriptor to 1 if the payload is first in the list and 0 otherwise.
    1. Set the second bit E of the descriptor to 1 if the payload is last in the list and 0 otherwise.
    1. Set the third bit T of the descriptor to 1 if the SFrame frame payload origin is packetized, and 0 if it is raw.
    1. Prepend the payload with the descriptor.
-   1. Let packet be a RTP packet with payload.
+   1. Let packet be an RTP packet with payload.
    1. Set the packet's RTP header, including header extensions, using the RTP metadata.
    1. In particular, if the SFrame frame marker bit is set, set the RTP header marker bit to the value of the second bit E of the descriptor.
    1. Send the packet.
 
 SFrame packets can be generated either from RTP media packets or from media frames as defined by {{WebRTC_Encoded_Transform}}.
-The two kind of processing are presented below.
+The two kinds of processing are presented below.
 
 ### Per-frame SFrame sending
 
-For per-frame SFrame, the following steps are done on sender side, with a media frame as input:
+For per-frame SFrame, the following steps are done on the sender side, with a media frame as input:
 
 1. Generate a list of RTP packets from the media frame using the media-format-specific packetizer.
 1. Let packet be the last RTP packet in the list.
-1. Let payload be a SFrame ciphertext generated from the media frame data.
-1. Let RTP metadata be a SFrame frame RTP metadata.
+1. Let payload be an SFrame ciphertext generated from the media frame data.
+1. Let RTP metadata be an SFrame frame RTP metadata.
 1. Set the SFrame RTP metadata payload origin to raw.
 1. Set the SFrame RTP metadata marker bit if the packet has its marker bit set.
 1. Set the SFrame RTP metadata other fields (timestamp, payload type, RTP header extensions...) using the packet RTP header.
@@ -178,21 +178,21 @@ For per-frame SFrame, the following steps are done on sender side, with a media 
 
 ### Per-packet SFrame sending
 
-For per-packet SFrame, the following steps are done on sender side, with a media frame as input:
+For per-packet SFrame, the following steps are done on the sender side, with a media frame as input:
 
 1. Generate a list of RTP packets from the media frame using the media-format-specific packetizer.
    The packetizer can be made aware of the SFrame overhead so that packet payloads do not get further split when doing SFrame packetization,
    to get a 1-1 match between the generated RTP packets and the SFrame encrypted sent RTP packets.
 1. For each RTP packet in the list, run the following steps:
-   1. Let payload be a SFrame ciphertext generated from the RTP packet payload.
-   1. Let RTP metadata be a SFrame frame RTP metadata.
+   1. Let payload be an SFrame ciphertext generated from the RTP packet payload.
+   1. Let RTP metadata be an SFrame frame RTP metadata.
    1. Set the SFrame RTP metadata payload origin to packetized.
    1. Set the SFrame RTP metadata other fields using the packet RTP header, including the marker bit.
    1. Send the SFrame frame generated from payload and RTP metadata to the SFrame packetizer.
 
 ## RTP depacketization of SFrame
 
-When receiving a RTP SFrame packet, the following steps are done:
+When receiving an RTP SFrame packet, the following steps are done:
 
 1. Add the packet to the set of received RTP packets.
 1. Sort the set in order of the RTP sequence number.
@@ -210,11 +210,14 @@ When receiving a RTP SFrame packet, the following steps are done:
    1. The RTP metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.
    1. The RTP metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.
 1. Decrypt the SFrame payload to obtain the media decrypted data. If decryption fails, abort these steps.
-1. If the frame RTP metadata payload origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame RTP metadata to the receiving pipeline.
+1. If the frame RTP metadata payload origin is raw, i.e., the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame RTP metadata to the receiving pipeline.
 1. Otherwise, run the following sub-steps:
    1. Let depacketizer be a media-format-specific depacketizer selected from the frame payload type.
    1. Send the media decrypted data and SFrame RTP metadata to the depacketizer.
    1. If the depacketizer generates a media frame, send the media frame to the receiving pipeline.
+
+Errors like inconsistent T bits, inconsistent payload types or decryption failures cause depacketization to fail and the corresponding frame to be discarded.
+The receiver SHOULD treat a discarded frame as a lost/corrupted frame and rely on its normal recovery mechanisms (e.g., PLI/FIR for video) even though no RTP packet was lost.
 
 ## SFrame metadata
 
@@ -222,11 +225,8 @@ The SFrame AEAD encryption and decryption operations of {{!RFC9605}} take a `met
 This metadata is unrelated to the RTP metadata used in the packetization algorithms above.
 
 By default, the `metadata` input for the SFrame encryption and decryption operations is empty.
-RTP header fields and header extension values can be modified by RTP middleboxes suc as SFUs, and some are not identical across the RTP packets of a frame.
+RTP header fields and header extension values can be modified by RTP middleboxes such as SFUs, and some are not identical across the RTP packets of a frame.
 Applications that want to use a non-empty SFrame metadata need to define how it is made available to both sender and receiver out of band of the RTP headers.
-
-Errors like inconsistent T bits, inconsistent payload types or decryption failures will make the depacketization fail and the corresponding frame to be discarded.
-The receiver SHOULD treat a discarded frame as a lost/corrupted frame and rely on its normal recovery mechanisms (e.g. PLI/FIR for video) even though no RTP packet was lost.
 
 # SFrame SDP negotiation
 
