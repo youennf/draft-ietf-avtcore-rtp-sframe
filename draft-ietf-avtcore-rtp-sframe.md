@@ -186,7 +186,7 @@ For per-packet SFrame, the following steps are done on sender side, with a media
 1. For each RTP packet in the list, run the following steps:
    1. Let payload be a SFrame ciphertext generated from the RTP packet payload.
    1. Let metadata be a SFrame frame metadata.
-   1. Set the SFrame metadata content origin to packetized.
+   1. Set the SFrame metadata payload origin to packetized.
    1. Set the SFrame metadata other fields using the packet RTP header, including the marker bit.
    1. Send the SFrame frame generated from payload and metadata to the SFrame packetizer.
 
@@ -210,11 +210,11 @@ When receiving a RTP SFrame packet, the following steps are done:
    1. The metadata's marker bit is set if the marker bit of the last RTP packet of the list is set.
    1. The metadata's payload origin is packetized if the T bit value is 1 and raw otherwise.
 1. Decrypt the SFrame payload to obtain the media decrypted data.
-1. If the frame metadata content origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.
+1. If the frame metadata payload origin is raw, aka the T bits of each RTP packet of the list are 0, send the media frame created from the media decrypted data and SFrame metadata to the receiving pipeline.
 1. Otherwise, run the following sub-steps:
-   1. Let packetizer be a media-format-specific packetizer selected from the frame payload type.
-   1. Send the media decrypted data and SFrame metadata to the packetizer.
-   1. If the packetizer generates a media frame, send the media frame to the receiving pipeline.
+   1. Let depacketizer be a media-format-specific depacketizer selected from the frame payload type.
+   1. Send the media decrypted data and SFrame metadata to the depacketizer.
+   1. If the depacketizer generates a media frame, send the media frame to the receiving pipeline.
 
 # SFrame SDP negotiation
 
