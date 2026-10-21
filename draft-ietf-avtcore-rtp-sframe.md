@@ -315,12 +315,14 @@ This results in a key tree that looks like the following for an offer that has t
 This document is subject to the security considerations of SFrame {{!RFC9605}}.
 How keys are established and distributed between endpoints is out of scope of this document.
 
-## Scope of SFrame Protection
+## Scope of SFrame Protection {#scope-of-sframe-protection}
 
 SFrame provides end-to-end confidentiality and integrity of the media payload only.
 The RTP header, RTP header extensions, CSRCs and the SFrame payload descriptor are not protected end-to-end by SFrame.
 RTCP is not protected by SFrame.
-Hop-by-hop protection, typically SRTP {{!RFC3711}}, is still needed to protect these fields from attackers that are not trusted middleboxes.
+Hop-by-hop protection mechanisms, for instance SRTP {{!RFC3711}} and cryptex {{?RFC9335}}, are still needed to protect these fields from attackers on the network path.
+SRTP alone does not encrypt RTP header extensions, which can be done using cryptex.
+These mechanisms are terminated at each middlebox, which can still access and modify these fields.
 
 ## Unauthenticated SFrame Payload Descriptor
 
@@ -339,17 +341,14 @@ The payload type is not authenticated by SFrame and can be legitimately rewritte
 A malicious middlebox can thus cause authentic decrypted media to be processed by a depacketizer or decoder of a different media format than the one used by the sender.
 Media depacketizers and decoders are known to be a significant attack surface.
 Receivers cannot expect that the decrypted data matches the media format identified by the payload type and need to handle it as robustly as data received from the network.
-Applications that have a payload type independent way to identify the media format, known to both sender and receiver, can include this identification in the SFrame `metadata` input.
 
 ## Metadata Exposed to Middleboxes
 
 By design, SFrame exposes metadata to middleboxes so that they can make forwarding decisions.
 This includes the RTP header, the RTP header extensions, the SFrame header, the SFrame payload descriptor and the RTP packet sizes.
 This information can reveal frame boundaries, frame sizes, key frames, video layer structure, and in the case of audio, voice activity, for instance via the audio level header extension {{?RFC6464}}.
-These leaks are larger with per-packet SFrame, where the SFrame boundaries follow the media-format-specific packetization.
-
+These leaks are potentially larger with per-packet SFrame, where the SFrame boundaries follow the media-format-specific packetization.
 Senders are expected to only send the header extensions that are needed by the middleboxes and the receivers to reduce privacy risks.
-Encryption of header extensions, for instance using {{?RFC9335}}, protects them from attackers on the network path but not from middleboxes that terminate the hop-by-hop protection.
 RTP padding can be used to reduce the information leaked by packet sizes.
 
 ## Per SSRC Key Derivation
@@ -357,7 +356,6 @@ RTP padding can be used to reduce the information leaked by packet sizes.
 The SFrame encryption nonce is derived from the key and the CTR value.
 If several RTP streams are encrypted with the same key and KID while maintaining independent CTR values, the same nonce will be used with the same key for different content, which breaks the confidentiality and integrity guarantees of the AEAD algorithms used by SFrame.
 The per SSRC key derivation defined in {{sframe-sdp-rtp-key-management}} prevents this by producing a different key for each SSRC.
-When the per SSRC key derivation is not used, the application ensures that each RTP stream encrypted with the same base_key uses distinct KID values, or that the streams share a single CTR counter.
 
 The per SSRC key derivation relies on the uniqueness of the SSRC among the RTP streams using the same base_key.
 If two senders use the same base_key and pick the same SSRC, they will derive the same ssrc_key and may reuse nonces.
@@ -369,9 +367,14 @@ A middlebox that rewrites SSRCs, as is commonly done by SFUs when forwarding sim
 In that case, decryption fails, which is a denial of service but does not compromise the media content.
 Similarly, a middlebox swapping the SSRCs of two RTP streams causes decryption failures instead of media of one stream being presented as media of the other stream.
 
+When the per SSRC key derivation is not used, for instance because SSRCs are not preserved end-to-end as described above, the application ensures that each RTP stream encrypted with the same base_key uses distinct KID values, or that the streams share a single counter.
+Since the SFrame key and salt are derived from both the base_key and the KID {{!RFC9605}}, using a distinct KID for each RTP stream results in distinct keys and salts for each stream, even if all streams share the same base_key.
+The KID is part of the SFrame header, which is authenticated by SFrame, and is therefore not affected by middleboxes rewriting RTP header fields.
+The KID allocation scheme needs to guarantee that the KID values used by the RTP streams of all senders sharing a base_key are distinct.
+
 Retransmission packets as defined in {{!RFC4588}} carry SFrame packets that were encrypted with the key derived from the original SSRC, not from the retransmission SSRC.
 
-Sender and receiver agree in an out-of-band mechanism on whether the per SSRC key derivation is used.
+Sender and receiver need to agree, using an out-of-band mechanism, on whether the per SSRC key derivation is used.
 A mismatch results in decryption failures for all media.
 
 ## Downgrade
