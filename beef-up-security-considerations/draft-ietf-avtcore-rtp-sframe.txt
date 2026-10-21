@@ -5,9 +5,9 @@
 Audio/Video Transport Core Maintenance                       P. Thatcher
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                               Y. Fablet
-Expires: 19 April 2027                                      A. Rosenberg
+Expires: 24 April 2027                                      A. Rosenberg
                                                                    Apple
-                                                         16 October 2026
+                                                         21 October 2026
 
 
                      RTP Payload Format for SFrame
@@ -50,7 +50,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 April 2027.
+   This Internet-Draft will expire on 24 April 2027.
 
 Copyright Notice
 
@@ -503,9 +503,12 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    SFrame provides end-to-end confidentiality and integrity of the media
    payload only.  The RTP header, RTP header extensions, CSRCs and the
    SFrame payload descriptor are not protected end-to-end by SFrame.
-   RTCP is not protected by SFrame.  Hop-by-hop protection, typically
-   SRTP [RFC3711], is still needed to protect these fields from
-   attackers that are not trusted middleboxes.
+   RTCP is not protected by SFrame.  Hop-by-hop protection mechanisms,
+   for instance SRTP [RFC3711] and cryptex [RFC9335], are still needed
+   to protect these fields from attackers on the network path.  SRTP
+   alone does not encrypt RTP header extensions, which can be done using
+   cryptex.  These mechanisms are terminated at each middlebox, which
+   can still access and modify these fields.
 
 9.2.  Unauthenticated SFrame Payload Descriptor
 
@@ -538,9 +541,7 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    significant attack surface.  Receivers cannot expect that the
    decrypted data matches the media format identified by the payload
    type and need to handle it as robustly as data received from the
-   network.  Applications that have a payload type independent way to
-   identify the media format, known to both sender and receiver, can
-   include this identification in the SFrame metadata input.
+   network.
 
 9.4.  Metadata Exposed to Middleboxes
 
@@ -550,16 +551,12 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    and the RTP packet sizes.  This information can reveal frame
    boundaries, frame sizes, key frames, video layer structure, and in
    the case of audio, voice activity, for instance via the audio level
-   header extension [RFC6464].  These leaks are larger with per-packet
-   SFrame, where the SFrame boundaries follow the media-format-specific
-   packetization.
-
-   Senders are expected to only send the header extensions that are
-   needed by the middleboxes and the receivers to reduce privacy risks.
-   Encryption of header extensions, for instance using [RFC9335],
-   protects them from attackers on the network path but not from
-   middleboxes that terminate the hop-by-hop protection.  RTP padding
-   can be used to reduce the information leaked by packet sizes.
+   header extension [RFC6464].  These leaks are potentially larger with
+   per-packet SFrame, where the SFrame boundaries follow the media-
+   format-specific packetization.  Senders are expected to only send the
+   header extensions that are needed by the middleboxes and the
+   receivers to reduce privacy risks.  RTP padding can be used to reduce
+   the information leaked by packet sizes.
 
 9.5.  Per SSRC Key Derivation
 
@@ -569,10 +566,7 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    used with the same key for different content, which breaks the
    confidentiality and integrity guarantees of the AEAD algorithms used
    by SFrame.  The per SSRC key derivation defined in Section 7 prevents
-   this by producing a different key for each SSRC.  When the per SSRC
-   key derivation is not used, the application ensures that each RTP
-   stream encrypted with the same base_key uses distinct KID values, or
-   that the streams share a single CTR counter.
+   this by producing a different key for each SSRC.
 
    The per SSRC key derivation relies on the uniqueness of the SSRC
    among the RTP streams using the same base_key.  If two senders use
@@ -593,13 +587,26 @@ ssrc_key = HKDF-Expand(HKDF-Extract(SSRC, base_key), "SFrame 1.0 RTP Stream", Ci
    failures instead of media of one stream being presented as media of
    the other stream.
 
+   When the per SSRC key derivation is not used, for instance because
+   SSRCs are not preserved end-to-end as described above, the
+   application ensures that each RTP stream encrypted with the same
+   base_key uses distinct KID values, or that the streams share a single
+   counter.  Since the SFrame key and salt are derived from both the
+   base_key and the KID [RFC9605], using a distinct KID for each RTP
+   stream results in distinct keys and salts for each stream, even if
+   all streams share the same base_key.  The KID is part of the SFrame
+   header, which is authenticated by SFrame, and is therefore not
+   affected by middleboxes rewriting RTP header fields.  The KID
+   allocation scheme needs to guarantee that the KID values used by the
+   RTP streams of all senders sharing a base_key are distinct.
+
    Retransmission packets as defined in [RFC4588] carry SFrame packets
    that were encrypted with the key derived from the original SSRC, not
    from the retransmission SSRC.
 
-   Sender and receiver agree in an out-of-band mechanism on whether the
-   per SSRC key derivation is used.  A mismatch results in decryption
-   failures for all media.
+   Sender and receiver need to agree, using an out-of-band mechanism, on
+   whether the per SSRC key derivation is used.  A mismatch results in
+   decryption failures for all media.
 
 9.6.  Downgrade
 
